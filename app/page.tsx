@@ -1,7 +1,25 @@
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
+
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      DARCA Asset Intelligence
-    </div>
+    <Box
+      component="main"
+      sx={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        bgcolor: "background.default",
+      }}
+    >
+      <Typography variant="h4" component="h1">
+        DARCA Asset Intelligence
+      </Typography>
+      <Button variant="contained">
+        Test button
+      </Button>
+    </Box>
   );
 }
