@@ -3,6 +3,7 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/theme";
+import { ColorSchemeProvider } from "@/lib/context/color-scheme-context";
 
 export default function ThemeRegistry({
   children,
@@ -10,9 +11,11 @@ export default function ThemeRegistry({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      {children}
+    <ThemeProvider theme={theme} defaultMode="light">
+      <ColorSchemeProvider>
+        <CssBaseline />
+        {children}
+      </ColorSchemeProvider>
     </ThemeProvider>
   );
 }

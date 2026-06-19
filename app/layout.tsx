@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
+import InitColorSchemeScript from "@mui/material/InitColorSchemeScript";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
 import ThemeRegistry from "@/components/theme-registry";
 import "./globals.css";
@@ -22,8 +23,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={roboto.variable}>
+    <html lang="en" className={roboto.variable} suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
+        <InitColorSchemeScript attribute="data" defaultMode="light" />
         <AppRouterCacheProvider options={{ enableCssLayer: true }}>
           <ThemeRegistry>{children}</ThemeRegistry>
         </AppRouterCacheProvider>
