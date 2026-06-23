@@ -56,7 +56,7 @@ This pulls the spec from `https://darca-service-development.up.railway.app/v3/ap
 | `openapi/darca-api.json` | No (gitignored) | Cached spec snapshot used during generation |
 | `lib/api/generated/schema.ts` | Yes | OpenAPI-derived `paths` and `components` types |
 
-Helper aliases live in `lib/api/types.ts` — use `Schema<"OrganisationResponse">` rather than importing from the generated file directly.
+Named schema types live in `lib/api/schema-types.ts` and are re-exported from `lib/api/types.ts` — import types like `OrganisationResponse` rather than importing from the generated file directly.
 
 ## API usage
 

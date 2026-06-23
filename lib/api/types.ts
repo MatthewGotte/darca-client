@@ -1,9 +1,7 @@
 import type { components, paths } from "./generated/schema";
 
 export type { components, paths };
-
-export type Schema<T extends keyof components["schemas"]> =
-  components["schemas"][T];
+export * from "./schema-types";
 
 type HttpMethod = "get" | "put" | "post" | "delete" | "patch" | "head" | "options";
 
@@ -47,10 +45,3 @@ export type ApiQueryParams<
 }
   ? T
   : never;
-
-export type AssetStatus =
-  NonNullable<Schema<"AssetSummaryResponse">["status"]>;
-
-export type JobStatus = NonNullable<Schema<"JobSummaryResponse">["status"]>;
-
-export type JobPriority = NonNullable<Schema<"JobSummaryResponse">["priority"]>;

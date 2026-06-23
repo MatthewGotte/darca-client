@@ -1,17 +1,67 @@
 import { api } from "./axios-config";
 import type {
+  AssetAssignmentResponse,
+  AssetDetailResponse,
+  AssetIdentifierRequest,
+  AssetCustomFieldValueRequest,
   AssetStatus,
+  AssetSummaryResponse,
+  AssignAssetUserRequest,
+  AssignCustomFieldsRequest,
+  AssignJobUserRequest,
+  AssignPermissionsRequest,
+  AssignRolesRequest,
+  AttachmentResponse,
+  CategoryDetailResponse,
+  CategoryResponse,
+  CompleteJobRequest,
+  ComplianceScheduleResponse,
+  CreateAssetRequest,
+  CreateCategoryRequest,
+  CreateComplianceScheduleRequest,
+  CreateCustomFieldRequest,
+  CreateJobRequest,
+  CreateLineRequest,
+  CreateLocationRequest,
+  CreateOrganisationRequest,
+  CreateRoleRequest,
+  CreateTypeRequest,
+  CreateUserRequest,
+  CustomFieldResponse,
+  JobAssignmentResponse,
+  JobDetailResponse,
+  JobHistoryResponse,
   JobPriority,
   JobStatus,
-  Schema,
+  JobSummaryResponse,
+  LineResponse,
+  LocationResponse,
+  OrganisationResponse,
+  PermissionGroupResponse,
+  RoleDetailResponse,
+  RoleSummaryResponse,
+  TypeResponse,
+  UpdateAssetRequest,
+  UpdateCategoryRequest,
+  UpdateComplianceScheduleRequest,
+  UpdateCustomFieldRequest,
+  UpdateJobRequest,
+  UpdateLineRequest,
+  UpdateLocationRequest,
+  UpdateOrganisationRequest,
+  UpdateRoleRequest,
+  UpdateTypeRequest,
+  UpdateUserRequest,
+  UserResponse,
+  UserRoleAssignmentResponse,
 } from "./types";
 
 // Organisations
 
 export async function createOrganisation(
-  body: Schema<"CreateOrganisationRequest">
-): Promise<Schema<"OrganisationResponse">> {
-  const { data } = await api.post<Schema<"OrganisationResponse">>(
+  body: CreateOrganisationRequest
+): Promise<OrganisationResponse> {
+  const { data } = await api.post<OrganisationResponse>(
     "/organisations",
     body
   );
@@ -20,8 +70,8 @@ export async function createOrganisation(
 
 export async function getOrganisation(
   id: string
-): Promise<Schema<"OrganisationResponse">> {
-  const { data } = await api.get<Schema<"OrganisationResponse">>(
+): Promise<OrganisationResponse> {
+  const { data } = await api.get<OrganisationResponse>(
     `/organisations/${id}`
   );
   return data;
@@ -29,9 +79,9 @@ export async function getOrganisation(
 
 export async function updateOrganisation(
   id: string,
-  body: Schema<"UpdateOrganisationRequest">
-): Promise<Schema<"OrganisationResponse">> {
-  const { data } = await api.put<Schema<"OrganisationResponse">>(
+  body: UpdateOrganisationRequest
+): Promise<OrganisationResponse> {
+  const { data } = await api.put<OrganisationResponse>(
     `/organisations/${id}`,
     body
   );
@@ -42,9 +92,9 @@ export async function updateOrganisation(
 
 export async function createOrganisationUser(
   organisationId: string,
-  body: Schema<"CreateUserRequest">
-): Promise<Schema<"UserResponse">> {
-  const { data } = await api.post<Schema<"UserResponse">>(
+  body: CreateUserRequest
+): Promise<UserResponse> {
+  const { data } = await api.post<UserResponse>(
     `/organisations/${organisationId}/users`,
     body
   );
@@ -54,8 +104,8 @@ export async function createOrganisationUser(
 export async function listOrganisationUsers(
   organisationId: string,
   params?: { includeDecommissioned?: boolean }
-): Promise<Schema<"UserResponse">[]> {
-  const { data } = await api.get<Schema<"UserResponse">[]>(
+): Promise<UserResponse[]> {
+  const { data } = await api.get<UserResponse[]>(
     `/organisations/${organisationId}/users`,
     { params }
   );
@@ -65,8 +115,8 @@ export async function listOrganisationUsers(
 export async function getOrganisationUser(
   organisationId: string,
   userId: string
-): Promise<Schema<"UserResponse">> {
-  const { data } = await api.get<Schema<"UserResponse">>(
+): Promise<UserResponse> {
+  const { data } = await api.get<UserResponse>(
     `/organisations/${organisationId}/users/${userId}`
   );
   return data;
@@ -75,9 +125,9 @@ export async function getOrganisationUser(
 export async function updateOrganisationUser(
   organisationId: string,
   userId: string,
-  body: Schema<"UpdateUserRequest">
-): Promise<Schema<"UserResponse">> {
-  const { data } = await api.put<Schema<"UserResponse">>(
+  body: UpdateUserRequest
+): Promise<UserResponse> {
+  const { data } = await api.put<UserResponse>(
     `/organisations/${organisationId}/users/${userId}`,
     body
   );
@@ -95,9 +145,9 @@ export async function deleteOrganisationUser(
 
 export async function createOrganisationLocation(
   organisationId: string,
-  body: Schema<"CreateLocationRequest">
-): Promise<Schema<"LocationResponse">> {
-  const { data } = await api.post<Schema<"LocationResponse">>(
+  body: CreateLocationRequest
+): Promise<LocationResponse> {
+  const { data } = await api.post<LocationResponse>(
     `/organisations/${organisationId}/locations`,
     body
   );
@@ -106,8 +156,8 @@ export async function createOrganisationLocation(
 
 export async function listOrganisationLocations(
   organisationId: string
-): Promise<Schema<"LocationResponse">[]> {
-  const { data } = await api.get<Schema<"LocationResponse">[]>(
+): Promise<LocationResponse[]> {
+  const { data } = await api.get<LocationResponse[]>(
     `/organisations/${organisationId}/locations`
   );
   return data;
@@ -116,8 +166,8 @@ export async function listOrganisationLocations(
 export async function getOrganisationLocation(
   organisationId: string,
   locationId: string
-): Promise<Schema<"LocationResponse">> {
-  const { data } = await api.get<Schema<"LocationResponse">>(
+): Promise<LocationResponse> {
+  const { data } = await api.get<LocationResponse>(
     `/organisations/${organisationId}/locations/${locationId}`
   );
   return data;
@@ -126,9 +176,9 @@ export async function getOrganisationLocation(
 export async function updateOrganisationLocation(
   organisationId: string,
   locationId: string,
-  body: Schema<"UpdateLocationRequest">
-): Promise<Schema<"LocationResponse">> {
-  const { data } = await api.put<Schema<"LocationResponse">>(
+  body: UpdateLocationRequest
+): Promise<LocationResponse> {
+  const { data } = await api.put<LocationResponse>(
     `/organisations/${organisationId}/locations/${locationId}`,
     body
   );
@@ -148,9 +198,9 @@ export async function deleteOrganisationLocation(
 
 export async function createLocationLine(
   locationId: string,
-  body: Schema<"CreateLineRequest">
-): Promise<Schema<"LineResponse">> {
-  const { data } = await api.post<Schema<"LineResponse">>(
+  body: CreateLineRequest
+): Promise<LineResponse> {
+  const { data } = await api.post<LineResponse>(
     `/locations/${locationId}/lines`,
     body
   );
@@ -159,8 +209,8 @@ export async function createLocationLine(
 
 export async function listLocationLines(
   locationId: string
-): Promise<Schema<"LineResponse">[]> {
-  const { data } = await api.get<Schema<"LineResponse">[]>(
+): Promise<LineResponse[]> {
+  const { data } = await api.get<LineResponse[]>(
     `/locations/${locationId}/lines`
   );
   return data;
@@ -169,8 +219,8 @@ export async function listLocationLines(
 export async function getLocationLine(
   locationId: string,
   lineId: string
-): Promise<Schema<"LineResponse">> {
-  const { data } = await api.get<Schema<"LineResponse">>(
+): Promise<LineResponse> {
+  const { data } = await api.get<LineResponse>(
     `/locations/${locationId}/lines/${lineId}`
   );
   return data;
@@ -179,9 +229,9 @@ export async function getLocationLine(
 export async function updateLocationLine(
   locationId: string,
   lineId: string,
-  body: Schema<"UpdateLineRequest">
-): Promise<Schema<"LineResponse">> {
-  const { data } = await api.put<Schema<"LineResponse">>(
+  body: UpdateLineRequest
+): Promise<LineResponse> {
+  const { data } = await api.put<LineResponse>(
     `/locations/${locationId}/lines/${lineId}`,
     body
   );
@@ -199,9 +249,9 @@ export async function deleteLocationLine(
 
 export async function createLocationAsset(
   locationId: string,
-  body: Schema<"CreateAssetRequest">
-): Promise<Schema<"AssetDetailResponse">> {
-  const { data } = await api.post<Schema<"AssetDetailResponse">>(
+  body: CreateAssetRequest
+): Promise<AssetDetailResponse> {
+  const { data } = await api.post<AssetDetailResponse>(
     `/locations/${locationId}/assets`,
     body
   );
@@ -211,8 +261,8 @@ export async function createLocationAsset(
 export async function listLocationAssets(
   locationId: string,
   params?: { status?: AssetStatus; categoryId?: string }
-): Promise<Schema<"AssetSummaryResponse">[]> {
-  const { data } = await api.get<Schema<"AssetSummaryResponse">[]>(
+): Promise<AssetSummaryResponse[]> {
+  const { data } = await api.get<AssetSummaryResponse[]>(
     `/locations/${locationId}/assets`,
     { params }
   );
@@ -222,8 +272,8 @@ export async function listLocationAssets(
 export async function getLocationAsset(
   locationId: string,
   assetId: string
-): Promise<Schema<"AssetDetailResponse">> {
-  const { data } = await api.get<Schema<"AssetDetailResponse">>(
+): Promise<AssetDetailResponse> {
+  const { data } = await api.get<AssetDetailResponse>(
     `/locations/${locationId}/assets/${assetId}`
   );
   return data;
@@ -232,9 +282,9 @@ export async function getLocationAsset(
 export async function updateLocationAsset(
   locationId: string,
   assetId: string,
-  body: Schema<"UpdateAssetRequest">
-): Promise<Schema<"AssetDetailResponse">> {
-  const { data } = await api.put<Schema<"AssetDetailResponse">>(
+  body: UpdateAssetRequest
+): Promise<AssetDetailResponse> {
+  const { data } = await api.put<AssetDetailResponse>(
     `/locations/${locationId}/assets/${assetId}`,
     body
   );
@@ -250,9 +300,9 @@ export async function deleteLocationAsset(
 
 export async function replaceAssetIdentifiers(
   assetId: string,
-  body: Schema<"AssetIdentifierRequest">
-): Promise<Schema<"AssetDetailResponse">> {
-  const { data } = await api.put<Schema<"AssetDetailResponse">>(
+  body: AssetIdentifierRequest
+): Promise<AssetDetailResponse> {
+  const { data } = await api.put<AssetDetailResponse>(
     `/assets/${assetId}/identifiers`,
     body
   );
@@ -261,9 +311,9 @@ export async function replaceAssetIdentifiers(
 
 export async function replaceAssetCustomFields(
   assetId: string,
-  body: Schema<"AssetCustomFieldValueRequest">
-): Promise<Schema<"AssetDetailResponse">> {
-  const { data } = await api.put<Schema<"AssetDetailResponse">>(
+  body: AssetCustomFieldValueRequest
+): Promise<AssetDetailResponse> {
+  const { data } = await api.put<AssetDetailResponse>(
     `/assets/${assetId}/custom-fields`,
     body
   );
@@ -273,11 +323,11 @@ export async function replaceAssetCustomFields(
 export async function uploadAssetAttachment(
   assetId: string,
   file: File | Blob
-): Promise<Schema<"AttachmentResponse">> {
+): Promise<AttachmentResponse> {
   const formData = new FormData();
   formData.append("file", file);
 
-  const { data } = await api.post<Schema<"AttachmentResponse">>(
+  const { data } = await api.post<AttachmentResponse>(
     `/assets/${assetId}/attachments`,
     formData,
     {
@@ -291,8 +341,8 @@ export async function uploadAssetAttachment(
 
 export async function listAssetAttachments(
   assetId: string
-): Promise<Schema<"AttachmentResponse">[]> {
-  const { data } = await api.get<Schema<"AttachmentResponse">[]>(
+): Promise<AttachmentResponse[]> {
+  const { data } = await api.get<AttachmentResponse[]>(
     `/assets/${assetId}/attachments`
   );
   return data;
@@ -307,9 +357,9 @@ export async function deleteAssetAttachment(
 
 export async function assignAssetUser(
   assetId: string,
-  body: Schema<"AssignAssetUserRequest">
-): Promise<Schema<"AssetAssignmentResponse">> {
-  const { data } = await api.post<Schema<"AssetAssignmentResponse">>(
+  body: AssignAssetUserRequest
+): Promise<AssetAssignmentResponse> {
+  const { data } = await api.post<AssetAssignmentResponse>(
     `/assets/${assetId}/assignments`,
     body
   );
@@ -327,9 +377,9 @@ export async function unassignAssetUser(
 
 export async function createAssetComplianceSchedule(
   assetId: string,
-  body: Schema<"CreateComplianceScheduleRequest">
-): Promise<Schema<"ComplianceScheduleResponse">> {
-  const { data } = await api.post<Schema<"ComplianceScheduleResponse">>(
+  body: CreateComplianceScheduleRequest
+): Promise<ComplianceScheduleResponse> {
+  const { data } = await api.post<ComplianceScheduleResponse>(
     `/assets/${assetId}/compliance-schedules`,
     body
   );
@@ -338,8 +388,8 @@ export async function createAssetComplianceSchedule(
 
 export async function listAssetComplianceSchedules(
   assetId: string
-): Promise<Schema<"ComplianceScheduleResponse">[]> {
-  const { data } = await api.get<Schema<"ComplianceScheduleResponse">[]>(
+): Promise<ComplianceScheduleResponse[]> {
+  const { data } = await api.get<ComplianceScheduleResponse[]>(
     `/assets/${assetId}/compliance-schedules`
   );
   return data;
@@ -348,8 +398,8 @@ export async function listAssetComplianceSchedules(
 export async function getAssetComplianceSchedule(
   assetId: string,
   scheduleId: string
-): Promise<Schema<"ComplianceScheduleResponse">> {
-  const { data } = await api.get<Schema<"ComplianceScheduleResponse">>(
+): Promise<ComplianceScheduleResponse> {
+  const { data } = await api.get<ComplianceScheduleResponse>(
     `/assets/${assetId}/compliance-schedules/${scheduleId}`
   );
   return data;
@@ -358,9 +408,9 @@ export async function getAssetComplianceSchedule(
 export async function updateAssetComplianceSchedule(
   assetId: string,
   scheduleId: string,
-  body: Schema<"UpdateComplianceScheduleRequest">
-): Promise<Schema<"ComplianceScheduleResponse">> {
-  const { data } = await api.put<Schema<"ComplianceScheduleResponse">>(
+  body: UpdateComplianceScheduleRequest
+): Promise<ComplianceScheduleResponse> {
+  const { data } = await api.put<ComplianceScheduleResponse>(
     `/assets/${assetId}/compliance-schedules/${scheduleId}`,
     body
   );
@@ -378,9 +428,9 @@ export async function deleteAssetComplianceSchedule(
 
 export async function createAssetJob(
   assetId: string,
-  body: Schema<"CreateJobRequest">
-): Promise<Schema<"JobDetailResponse">> {
-  const { data } = await api.post<Schema<"JobDetailResponse">>(
+  body: CreateJobRequest
+): Promise<JobDetailResponse> {
+  const { data } = await api.post<JobDetailResponse>(
     `/assets/${assetId}/jobs`,
     body
   );
@@ -390,32 +440,32 @@ export async function createAssetJob(
 export async function listAssetJobs(
   assetId: string,
   params?: { status?: JobStatus; priority?: JobPriority }
-): Promise<Schema<"JobSummaryResponse">[]> {
-  const { data } = await api.get<Schema<"JobSummaryResponse">[]>(
+): Promise<JobSummaryResponse[]> {
+  const { data } = await api.get<JobSummaryResponse[]>(
     `/assets/${assetId}/jobs`,
     { params }
   );
   return data;
 }
 
-export async function getJob(jobId: string): Promise<Schema<"JobDetailResponse">> {
-  const { data } = await api.get<Schema<"JobDetailResponse">>(`/jobs/${jobId}`);
+export async function getJob(jobId: string): Promise<JobDetailResponse> {
+  const { data } = await api.get<JobDetailResponse>(`/jobs/${jobId}`);
   return data;
 }
 
 export async function updateJob(
   jobId: string,
-  body: Schema<"UpdateJobRequest">
-): Promise<Schema<"JobDetailResponse">> {
-  const { data } = await api.put<Schema<"JobDetailResponse">>(
+  body: UpdateJobRequest
+): Promise<JobDetailResponse> {
+  const { data } = await api.put<JobDetailResponse>(
     `/jobs/${jobId}`,
     body
   );
   return data;
 }
 
-export async function startJob(jobId: string): Promise<Schema<"JobDetailResponse">> {
-  const { data } = await api.post<Schema<"JobDetailResponse">>(
+export async function startJob(jobId: string): Promise<JobDetailResponse> {
+  const { data } = await api.post<JobDetailResponse>(
     `/jobs/${jobId}/start`
   );
   return data;
@@ -423,17 +473,17 @@ export async function startJob(jobId: string): Promise<Schema<"JobDetailResponse
 
 export async function completeJob(
   jobId: string,
-  body: Schema<"CompleteJobRequest">
-): Promise<Schema<"JobDetailResponse">> {
-  const { data } = await api.post<Schema<"JobDetailResponse">>(
+  body: CompleteJobRequest
+): Promise<JobDetailResponse> {
+  const { data } = await api.post<JobDetailResponse>(
     `/jobs/${jobId}/complete`,
     body
   );
   return data;
 }
 
-export async function archiveJob(jobId: string): Promise<Schema<"JobDetailResponse">> {
-  const { data } = await api.post<Schema<"JobDetailResponse">>(
+export async function archiveJob(jobId: string): Promise<JobDetailResponse> {
+  const { data } = await api.post<JobDetailResponse>(
     `/jobs/${jobId}/archive`
   );
   return data;
@@ -441,9 +491,9 @@ export async function archiveJob(jobId: string): Promise<Schema<"JobDetailRespon
 
 export async function assignJobUser(
   jobId: string,
-  body: Schema<"AssignJobUserRequest">
-): Promise<Schema<"JobAssignmentResponse">> {
-  const { data } = await api.post<Schema<"JobAssignmentResponse">>(
+  body: AssignJobUserRequest
+): Promise<JobAssignmentResponse> {
+  const { data } = await api.post<JobAssignmentResponse>(
     `/jobs/${jobId}/assignments`,
     body
   );
@@ -459,8 +509,8 @@ export async function unassignJobUser(
 
 export async function getJobHistory(
   jobId: string
-): Promise<Schema<"JobHistoryResponse">[]> {
-  const { data } = await api.get<Schema<"JobHistoryResponse">[]>(
+): Promise<JobHistoryResponse[]> {
+  const { data } = await api.get<JobHistoryResponse[]>(
     `/jobs/${jobId}/history`
   );
   return data;
@@ -469,24 +519,24 @@ export async function getJobHistory(
 // Categories
 
 export async function createCategory(
-  body: Schema<"CreateCategoryRequest">
-): Promise<Schema<"CategoryDetailResponse">> {
-  const { data } = await api.post<Schema<"CategoryDetailResponse">>(
+  body: CreateCategoryRequest
+): Promise<CategoryDetailResponse> {
+  const { data } = await api.post<CategoryDetailResponse>(
     "/categories",
     body
   );
   return data;
 }
 
-export async function listCategories(): Promise<Schema<"CategoryResponse">[]> {
-  const { data } = await api.get<Schema<"CategoryResponse">[]>("/categories");
+export async function listCategories(): Promise<CategoryResponse[]> {
+  const { data } = await api.get<CategoryResponse[]>("/categories");
   return data;
 }
 
 export async function getCategory(
   id: string
-): Promise<Schema<"CategoryDetailResponse">> {
-  const { data } = await api.get<Schema<"CategoryDetailResponse">>(
+): Promise<CategoryDetailResponse> {
+  const { data } = await api.get<CategoryDetailResponse>(
     `/categories/${id}`
   );
   return data;
@@ -494,9 +544,9 @@ export async function getCategory(
 
 export async function updateCategory(
   id: string,
-  body: Schema<"UpdateCategoryRequest">
-): Promise<Schema<"CategoryDetailResponse">> {
-  const { data } = await api.put<Schema<"CategoryDetailResponse">>(
+  body: UpdateCategoryRequest
+): Promise<CategoryDetailResponse> {
+  const { data } = await api.put<CategoryDetailResponse>(
     `/categories/${id}`,
     body
   );
@@ -505,9 +555,9 @@ export async function updateCategory(
 
 export async function updateCategoryCustomFields(
   id: string,
-  body: Schema<"AssignCustomFieldsRequest">
-): Promise<Schema<"CategoryDetailResponse">> {
-  const { data } = await api.put<Schema<"CategoryDetailResponse">>(
+  body: AssignCustomFieldsRequest
+): Promise<CategoryDetailResponse> {
+  const { data } = await api.put<CategoryDetailResponse>(
     `/categories/${id}/custom-fields`,
     body
   );
@@ -521,27 +571,27 @@ export async function deleteCategory(id: string): Promise<void> {
 // Types
 
 export async function createType(
-  body: Schema<"CreateTypeRequest">
-): Promise<Schema<"TypeResponse">> {
-  const { data } = await api.post<Schema<"TypeResponse">>("/types", body);
+  body: CreateTypeRequest
+): Promise<TypeResponse> {
+  const { data } = await api.post<TypeResponse>("/types", body);
   return data;
 }
 
-export async function listTypes(): Promise<Schema<"TypeResponse">[]> {
-  const { data } = await api.get<Schema<"TypeResponse">[]>("/types");
+export async function listTypes(): Promise<TypeResponse[]> {
+  const { data } = await api.get<TypeResponse[]>("/types");
   return data;
 }
 
-export async function getType(id: string): Promise<Schema<"TypeResponse">> {
-  const { data } = await api.get<Schema<"TypeResponse">>(`/types/${id}`);
+export async function getType(id: string): Promise<TypeResponse> {
+  const { data } = await api.get<TypeResponse>(`/types/${id}`);
   return data;
 }
 
 export async function updateType(
   id: string,
-  body: Schema<"UpdateTypeRequest">
-): Promise<Schema<"TypeResponse">> {
-  const { data } = await api.put<Schema<"TypeResponse">>(`/types/${id}`, body);
+  body: UpdateTypeRequest
+): Promise<TypeResponse> {
+  const { data } = await api.put<TypeResponse>(`/types/${id}`, body);
   return data;
 }
 
@@ -552,17 +602,17 @@ export async function deleteType(id: string): Promise<void> {
 // Custom fields
 
 export async function createCustomField(
-  body: Schema<"CreateCustomFieldRequest">
-): Promise<Schema<"CustomFieldResponse">> {
-  const { data } = await api.post<Schema<"CustomFieldResponse">>(
+  body: CreateCustomFieldRequest
+): Promise<CustomFieldResponse> {
+  const { data } = await api.post<CustomFieldResponse>(
     "/custom-fields",
     body
   );
   return data;
 }
 
-export async function listCustomFields(): Promise<Schema<"CustomFieldResponse">[]> {
-  const { data } = await api.get<Schema<"CustomFieldResponse">[]>(
+export async function listCustomFields(): Promise<CustomFieldResponse[]> {
+  const { data } = await api.get<CustomFieldResponse[]>(
     "/custom-fields"
   );
   return data;
@@ -570,8 +620,8 @@ export async function listCustomFields(): Promise<Schema<"CustomFieldResponse">[
 
 export async function getCustomField(
   id: string
-): Promise<Schema<"CustomFieldResponse">> {
-  const { data } = await api.get<Schema<"CustomFieldResponse">>(
+): Promise<CustomFieldResponse> {
+  const { data } = await api.get<CustomFieldResponse>(
     `/custom-fields/${id}`
   );
   return data;
@@ -579,9 +629,9 @@ export async function getCustomField(
 
 export async function updateCustomField(
   id: string,
-  body: Schema<"UpdateCustomFieldRequest">
-): Promise<Schema<"CustomFieldResponse">> {
-  const { data } = await api.put<Schema<"CustomFieldResponse">>(
+  body: UpdateCustomFieldRequest
+): Promise<CustomFieldResponse> {
+  const { data } = await api.put<CustomFieldResponse>(
     `/custom-fields/${id}`,
     body
   );
@@ -595,9 +645,9 @@ export async function deleteCustomField(id: string): Promise<void> {
 // RBAC
 
 export async function listPermissions(): Promise<
-  Schema<"PermissionGroupResponse">[]
+  PermissionGroupResponse[]
 > {
-  const { data } = await api.get<Schema<"PermissionGroupResponse">[]>(
+  const { data } = await api.get<PermissionGroupResponse[]>(
     "/permissions"
   );
   return data;
@@ -605,8 +655,8 @@ export async function listPermissions(): Promise<
 
 export async function listOrganisationRoles(
   organisationId: string
-): Promise<Schema<"RoleSummaryResponse">[]> {
-  const { data } = await api.get<Schema<"RoleSummaryResponse">[]>(
+): Promise<RoleSummaryResponse[]> {
+  const { data } = await api.get<RoleSummaryResponse[]>(
     `/organisations/${organisationId}/roles`
   );
   return data;
@@ -614,9 +664,9 @@ export async function listOrganisationRoles(
 
 export async function createOrganisationRole(
   organisationId: string,
-  body: Schema<"CreateRoleRequest">
-): Promise<Schema<"RoleDetailResponse">> {
-  const { data } = await api.post<Schema<"RoleDetailResponse">>(
+  body: CreateRoleRequest
+): Promise<RoleDetailResponse> {
+  const { data } = await api.post<RoleDetailResponse>(
     `/organisations/${organisationId}/roles`,
     body
   );
@@ -626,8 +676,8 @@ export async function createOrganisationRole(
 export async function getOrganisationRole(
   organisationId: string,
   roleId: string
-): Promise<Schema<"RoleDetailResponse">> {
-  const { data } = await api.get<Schema<"RoleDetailResponse">>(
+): Promise<RoleDetailResponse> {
+  const { data } = await api.get<RoleDetailResponse>(
     `/organisations/${organisationId}/roles/${roleId}`
   );
   return data;
@@ -636,9 +686,9 @@ export async function getOrganisationRole(
 export async function updateOrganisationRole(
   organisationId: string,
   roleId: string,
-  body: Schema<"UpdateRoleRequest">
-): Promise<Schema<"RoleDetailResponse">> {
-  const { data } = await api.put<Schema<"RoleDetailResponse">>(
+  body: UpdateRoleRequest
+): Promise<RoleDetailResponse> {
+  const { data } = await api.put<RoleDetailResponse>(
     `/organisations/${organisationId}/roles/${roleId}`,
     body
   );
@@ -648,9 +698,9 @@ export async function updateOrganisationRole(
 export async function updateOrganisationRolePermissions(
   organisationId: string,
   roleId: string,
-  body: Schema<"AssignPermissionsRequest">
-): Promise<Schema<"RoleDetailResponse">> {
-  const { data } = await api.put<Schema<"RoleDetailResponse">>(
+  body: AssignPermissionsRequest
+): Promise<RoleDetailResponse> {
+  const { data } = await api.put<RoleDetailResponse>(
     `/organisations/${organisationId}/roles/${roleId}/permissions`,
     body
   );
@@ -666,9 +716,9 @@ export async function deleteOrganisationRole(
 
 export async function updateUserOrganisationRoles(
   userId: string,
-  body: Schema<"AssignRolesRequest">
-): Promise<Schema<"UserRoleAssignmentResponse">> {
-  const { data } = await api.put<Schema<"UserRoleAssignmentResponse">>(
+  body: AssignRolesRequest
+): Promise<UserRoleAssignmentResponse> {
+  const { data } = await api.put<UserRoleAssignmentResponse>(
     `/users/${userId}/organisation-roles`,
     body
   );
@@ -678,9 +728,9 @@ export async function updateUserOrganisationRoles(
 export async function updateUserLocationRoles(
   userId: string,
   locationId: string,
-  body: Schema<"AssignRolesRequest">
-): Promise<Schema<"UserRoleAssignmentResponse">> {
-  const { data } = await api.put<Schema<"UserRoleAssignmentResponse">>(
+  body: AssignRolesRequest
+): Promise<UserRoleAssignmentResponse> {
+  const { data } = await api.put<UserRoleAssignmentResponse>(
     `/users/${userId}/locations/${locationId}/roles`,
     body
   );
