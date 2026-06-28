@@ -75,7 +75,7 @@ const jobs = await listAssetJobs(assetId, {
 
 Errors from the backend are normalized to `ApiError` (from `@/lib/api/axios-config`) with a `status` code and optional `body` payload.
 
-Browse `lib/api/api.ts` for the full list of functions — naming follows `{verb}{Resource}` (e.g. `createOrganisation`, `listOrganisationLocations`, `startJob`).
+Browse `lib/api/api.ts` for the full list of functions — naming follows `{verb}{Resource}` (e.g. `updateOrganisation`, `listOrganisationLocations`, `startJob`).
 
 ## SWR usage
 

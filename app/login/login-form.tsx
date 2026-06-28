@@ -48,7 +48,7 @@ function LoginFormContent() {
         Sign in
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        Enter your credentials to access DARCA Asset Intelligence.
+        Enter your email and password. If you don't have an account, please contact your administrator.
       </Typography>
 
       {error ? <Alert severity="error">{error}</Alert> : null}

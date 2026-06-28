@@ -5,6 +5,8 @@ import type {
   AssetIdentifierRequest,
   AssetCustomFieldValueRequest,
   AssetStatus,
+  AssetStatusHistoryResponse,
+  AssetStatusResponse,
   AssetSummaryResponse,
   AssignAssetUserRequest,
   AssignCustomFieldsRequest,
@@ -14,6 +16,7 @@ import type {
   AttachmentResponse,
   CategoryDetailResponse,
   CategoryResponse,
+  ChangePasswordRequest,
   CompleteJobRequest,
   ComplianceScheduleResponse,
   CreateAssetRequest,
@@ -23,7 +26,6 @@ import type {
   CreateJobRequest,
   CreateLineRequest,
   CreateLocationRequest,
-  CreateOrganisationRequest,
   CreateRoleRequest,
   CreateTypeRequest,
   CreateUserRequest,
@@ -41,6 +43,7 @@ import type {
   PermissionGroupResponse,
   RoleDetailResponse,
   RoleSummaryResponse,
+  SetPasswordRequest,
   TypeResponse,
   UpdateAssetRequest,
   UpdateCategoryRequest,
@@ -64,17 +67,22 @@ export async function getMe(): Promise<MeResponse> {
   return data;
 }
 
-// Organisations
-
-export async function createOrganisation(
-  body: CreateOrganisationRequest
-): Promise<OrganisationResponse> {
-  const { data } = await api.post<OrganisationResponse>(
-    "/organisations",
-    body
-  );
-  return data;
+export async function logout(refreshToken: string): Promise<void> {
+  await api.post("/auth/logout", { refreshToken });
 }
+
+export async function changePassword(body: ChangePasswordRequest): Promise<void> {
+  await api.put("/auth/password", body);
+}
+
+export async function setUserPassword(
+  userId: string,
+  body: SetPasswordRequest
+): Promise<void> {
+  await api.post(`/users/${userId}/password`, body);
+}
+
+// Organisations
 
 export async function getOrganisation(
   id: string
@@ -379,6 +387,20 @@ export async function unassignAssetUser(
   userId: string
 ): Promise<void> {
   await api.delete(`/assets/${assetId}/assignments/${userId}`);
+}
+
+export async function listAssetStatuses(): Promise<AssetStatusResponse[]> {
+  const { data } = await api.get<AssetStatusResponse[]>("/asset-statuses");
+  return data;
+}
+
+export async function listAssetStatusHistory(
+  assetId: string
+): Promise<AssetStatusHistoryResponse[]> {
+  const { data } = await api.get<AssetStatusHistoryResponse[]>(
+    `/assets/${assetId}/status-history`
+  );
+  return data;
 }
 
 // Compliance schedules

@@ -15,13 +15,15 @@
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.1.1",
     "@mui/material": "^9.1.0",
     "@mui/material-nextjs": "^9.1.0",
     "axios": "^1.13.2",
     "next": "16.2.9",
     "next-auth": "^5.0.0-beta.31",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "swr": "^2.4.2"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

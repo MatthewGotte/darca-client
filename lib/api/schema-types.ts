@@ -11,6 +11,11 @@ export type RefreshTokenRequest = {
   refreshToken: string;
 };
 
+export type ChangePasswordRequest =
+  components["schemas"]["ChangePasswordRequest"];
+
+export type SetPasswordRequest = components["schemas"]["SetPasswordRequest"];
+
 export type AuthResponse = {
   accessToken: string;
   refreshToken: string;
@@ -29,8 +34,6 @@ export type MeResponse = {
 
 // Organisations
 
-export type CreateOrganisationRequest =
-  components["schemas"]["CreateOrganisationRequest"];
 export type UpdateOrganisationRequest =
   components["schemas"]["UpdateOrganisationRequest"];
 export type OrganisationResponse =
@@ -78,6 +81,9 @@ export type AssetAssignmentResponse =
 export type AssignAssetUserRequest =
   components["schemas"]["AssignAssetUserRequest"];
 export type AttachmentResponse = components["schemas"]["AttachmentResponse"];
+export type AssetStatusResponse = components["schemas"]["AssetStatusResponse"];
+export type AssetStatusHistoryResponse =
+  components["schemas"]["AssetStatusHistoryResponse"];
 
 export type AssetStatus =
   NonNullable<components["schemas"]["AssetSummaryResponse"]["status"]>;
