@@ -36,6 +36,7 @@ import type {
   JobSummaryResponse,
   LineResponse,
   LocationResponse,
+  MeResponse,
   OrganisationResponse,
   PermissionGroupResponse,
   RoleDetailResponse,
@@ -55,6 +56,13 @@ import type {
   UserResponse,
   UserRoleAssignmentResponse,
 } from "./types";
+
+// Auth
+
+export async function getMe(): Promise<MeResponse> {
+  const { data } = await api.get<MeResponse>("/auth/me");
+  return data;
+}
 
 // Organisations
 

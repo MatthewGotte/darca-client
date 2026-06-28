@@ -228,6 +228,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: operations["changePassword"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/assets/{assetId}/identifiers": {
         parameters: {
             query?: never;
@@ -276,6 +292,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/users/{userId}/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["setPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/types": {
         parameters: {
             query?: never;
@@ -292,22 +324,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/organisations": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["create_1"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/organisations/{organisationId}/users": {
         parameters: {
             query?: never;
@@ -317,7 +333,7 @@ export interface paths {
         };
         get: operations["list_1"];
         put?: never;
-        post: operations["create_2"];
+        post: operations["create_1"];
         delete?: never;
         options?: never;
         head?: never;
@@ -349,7 +365,7 @@ export interface paths {
         };
         get: operations["list_2"];
         put?: never;
-        post: operations["create_3"];
+        post: operations["create_2"];
         delete?: never;
         options?: never;
         head?: never;
@@ -365,7 +381,7 @@ export interface paths {
         };
         get: operations["list_3"];
         put?: never;
-        post: operations["create_4"];
+        post: operations["create_3"];
         delete?: never;
         options?: never;
         head?: never;
@@ -381,7 +397,7 @@ export interface paths {
         };
         get: operations["list_4"];
         put?: never;
-        post: operations["create_5"];
+        post: operations["create_4"];
         delete?: never;
         options?: never;
         head?: never;
@@ -461,7 +477,7 @@ export interface paths {
         };
         get: operations["list_5"];
         put?: never;
-        post: operations["create_6"];
+        post: operations["create_5"];
         delete?: never;
         options?: never;
         head?: never;
@@ -477,7 +493,55 @@ export interface paths {
         };
         get: operations["list_6"];
         put?: never;
-        post: operations["create_7"];
+        post: operations["create_6"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["login"];
         delete?: never;
         options?: never;
         head?: never;
@@ -493,7 +557,7 @@ export interface paths {
         };
         get: operations["list_7"];
         put?: never;
-        post: operations["create_8"];
+        post: operations["create_7"];
         delete?: never;
         options?: never;
         head?: never;
@@ -509,7 +573,7 @@ export interface paths {
         };
         get: operations["list_8"];
         put?: never;
-        post: operations["create_9"];
+        post: operations["create_8"];
         delete?: never;
         options?: never;
         head?: never;
@@ -572,6 +636,54 @@ export interface paths {
             cookie?: never;
         };
         get: operations["getHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/assets/{assetId}/status-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["statusHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/asset-statuses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listStatuses"];
         put?: never;
         post?: never;
         delete?: never;
@@ -760,8 +872,7 @@ export interface components {
             lineId?: string;
             modelNumber?: string;
             manufacturer?: string;
-            /** @enum {string} */
-            status?: "OPERATIONAL" | "UNDER_MAINTENANCE" | "INACTIVE" | "DECOMMISSIONED";
+            status?: string;
             /** @enum {string} */
             criticality?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
             /** Format: date */
@@ -809,8 +920,8 @@ export interface components {
             name?: string;
             modelNumber?: string;
             manufacturer?: string;
-            /** @enum {string} */
-            status?: "OPERATIONAL" | "UNDER_MAINTENANCE" | "INACTIVE" | "DECOMMISSIONED";
+            status?: string;
+            statusLabel?: string;
             /** @enum {string} */
             criticality?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
             /** Format: date */
@@ -959,6 +1070,10 @@ export interface components {
         AssignCustomFieldsRequest: {
             customFieldIds: string[];
         };
+        ChangePasswordRequest: {
+            currentPassword: string;
+            newPassword: string;
+        };
         AssetIdentifierRequest: {
             identifiers: components["schemas"]["IdentifierEntry"][];
         };
@@ -1010,17 +1125,18 @@ export interface components {
             /** Format: date-time */
             updatedAt?: string;
         };
+        SetPasswordRequest: {
+            password: string;
+        };
         CreateTypeRequest: {
             name: string;
             description?: string;
-        };
-        CreateOrganisationRequest: {
-            name: string;
         };
         CreateUserRequest: {
             name: string;
             /** Format: email */
             email: string;
+            password?: string;
         };
         CreateRoleRequest: {
             name: string;
@@ -1045,8 +1161,7 @@ export interface components {
             name: string;
             modelNumber?: string;
             manufacturer?: string;
-            /** @enum {string} */
-            status?: "OPERATIONAL" | "UNDER_MAINTENANCE" | "INACTIVE" | "DECOMMISSIONED";
+            status?: string;
             /** @enum {string} */
             criticality?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
             /** Format: date */
@@ -1076,6 +1191,21 @@ export interface components {
         CreateCategoryRequest: {
             name: string;
             description?: string;
+        };
+        RefreshTokenRequest: {
+            refreshToken: string;
+        };
+        AuthResponse: {
+            accessToken?: string;
+            refreshToken?: string;
+            tokenType?: string;
+            /** Format: int64 */
+            expiresIn?: number;
+        };
+        LoginRequest: {
+            /** Format: email */
+            email: string;
+            password: string;
         };
         CreateJobRequest: {
             title: string;
@@ -1139,8 +1269,8 @@ export interface components {
             name?: string;
             modelNumber?: string;
             manufacturer?: string;
-            /** @enum {string} */
-            status?: "OPERATIONAL" | "UNDER_MAINTENANCE" | "INACTIVE" | "DECOMMISSIONED";
+            status?: string;
+            statusLabel?: string;
             /** @enum {string} */
             criticality?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
             /** Format: date-time */
@@ -1159,6 +1289,30 @@ export interface components {
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
+        };
+        MeResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            organisationId?: string;
+            name?: string;
+            email?: string;
+            roles?: string[];
+            permissions?: string[];
+        };
+        AssetStatusHistoryResponse: {
+            /** Format: uuid */
+            id?: string;
+            /** Format: uuid */
+            assetId?: string;
+            status?: string;
+            statusLabel?: string;
+            /** Format: uuid */
+            changedByUserId?: string;
+            changedByUserName?: string;
+            notes?: string;
+            /** Format: date-time */
+            createdAt?: string;
         };
         JobSummaryResponse: {
             /** Format: uuid */
@@ -1184,6 +1338,13 @@ export interface components {
             createdAt?: string;
             /** Format: date-time */
             updatedAt?: string;
+        };
+        AssetStatusResponse: {
+            code?: string;
+            label?: string;
+            description?: string;
+            /** Format: int32 */
+            displayOrder?: number;
         };
     };
     responses: never;
@@ -1955,6 +2116,28 @@ export interface operations {
             };
         };
     };
+    changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     replaceIdentifiers: {
         parameters: {
             query?: never;
@@ -2078,6 +2261,30 @@ export interface operations {
             };
         };
     };
+    setPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetPasswordRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     list: {
         parameters: {
             query?: never;
@@ -2122,30 +2329,6 @@ export interface operations {
             };
         };
     };
-    create_1: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateOrganisationRequest"];
-            };
-        };
-        responses: {
-            /** @description Created */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "*/*": components["schemas"]["OrganisationResponse"];
-                };
-            };
-        };
-    };
     list_1: {
         parameters: {
             query?: {
@@ -2170,7 +2353,7 @@ export interface operations {
             };
         };
     };
-    create_2: {
+    create_1: {
         parameters: {
             query?: never;
             header?: never;
@@ -2266,7 +2449,7 @@ export interface operations {
             };
         };
     };
-    create_3: {
+    create_2: {
         parameters: {
             query?: never;
             header?: never;
@@ -2314,7 +2497,7 @@ export interface operations {
             };
         };
     };
-    create_4: {
+    create_3: {
         parameters: {
             query?: never;
             header?: never;
@@ -2343,7 +2526,7 @@ export interface operations {
     list_4: {
         parameters: {
             query?: {
-                status?: "OPERATIONAL" | "UNDER_MAINTENANCE" | "INACTIVE" | "DECOMMISSIONED";
+                status?: string;
                 categoryId?: string;
             };
             header?: never;
@@ -2365,7 +2548,7 @@ export interface operations {
             };
         };
     };
-    create_5: {
+    create_4: {
         parameters: {
             query?: never;
             header?: never;
@@ -2507,7 +2690,7 @@ export interface operations {
             };
         };
     };
-    create_6: {
+    create_5: {
         parameters: {
             query?: never;
             header?: never;
@@ -2551,7 +2734,7 @@ export interface operations {
             };
         };
     };
-    create_7: {
+    create_6: {
         parameters: {
             query?: never;
             header?: never;
@@ -2571,6 +2754,76 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["CategoryDetailResponse"];
+                };
+            };
+        };
+    };
+    refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AuthResponse"];
+                };
+            };
+        };
+    };
+    logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description No Content */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginRequest"];
+            };
+        };
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AuthResponse"];
                 };
             };
         };
@@ -2600,7 +2853,7 @@ export interface operations {
             };
         };
     };
-    create_8: {
+    create_7: {
         parameters: {
             query?: never;
             header?: never;
@@ -2648,7 +2901,7 @@ export interface operations {
             };
         };
     };
-    create_9: {
+    create_8: {
         parameters: {
             query?: never;
             header?: never;
@@ -2789,6 +3042,68 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["JobHistoryResponse"][];
+                };
+            };
+        };
+    };
+    me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["MeResponse"];
+                };
+            };
+        };
+    };
+    statusHistory: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                assetId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AssetStatusHistoryResponse"][];
+                };
+            };
+        };
+    };
+    listStatuses: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AssetStatusResponse"][];
                 };
             };
         };

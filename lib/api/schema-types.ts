@@ -1,5 +1,32 @@
 import type { components } from "./generated/schema";
 
+// Auth
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
+export type RefreshTokenRequest = {
+  refreshToken: string;
+};
+
+export type AuthResponse = {
+  accessToken: string;
+  refreshToken: string;
+  tokenType: string;
+  expiresIn: number;
+};
+
+export type MeResponse = {
+  id: string;
+  organisationId: string;
+  name: string;
+  email: string;
+  roles: string[];
+  permissions: string[];
+};
+
 // Organisations
 
 export type CreateOrganisationRequest =

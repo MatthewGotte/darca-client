@@ -35,14 +35,33 @@ export const api = axios.create({
   },
 });
 
+api.interceptors.request.use(async (config) => {
+  if (typeof window !== "undefined") {
+    const { getSession } = await import("next-auth/react");
+    const session = await getSession();
+
+    if (session?.accessToken) {
+      config.headers.Authorization = `Bearer ${session.accessToken}`;
+    }
+  }
+
+  return config;
+});
+
 api.interceptors.response.use(
   (response) => response,
-  (error: AxiosError<ApiErrorBody>) => {
+  async (error: AxiosError<ApiErrorBody>) => {
     if (!isAxiosError(error)) {
       return Promise.reject(error);
     }
 
     const status = error.response?.status ?? 0;
+
+    if (status === 401 && typeof window !== "undefined") {
+      const { signOut } = await import("next-auth/react");
+      await signOut({ callbackUrl: "/login" });
+    }
+
     const body = error.response?.data;
     const message =
       body?.message ??
