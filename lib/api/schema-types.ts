@@ -14,6 +14,23 @@ export type RefreshTokenRequest = {
 export type ChangePasswordRequest =
   components["schemas"]["ChangePasswordRequest"];
 
+export type RequestPasswordResetRequest = {
+  email: string;
+};
+
+export type ValidateResetTokenRequest = {
+  token: string;
+};
+
+export type ResetPasswordRequest = {
+  token: string;
+  newPassword: string;
+};
+
+export type ValidateResetTokenResponse = {
+  valid: boolean;
+};
+
 export type SetPasswordRequest = components["schemas"]["SetPasswordRequest"];
 
 export type AuthResponse = {

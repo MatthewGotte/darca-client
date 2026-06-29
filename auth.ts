@@ -116,7 +116,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       const isLoggedIn = !!auth?.user;
       const { pathname } = nextUrl;
 
-      if (pathname.startsWith("/login")) {
+      if (
+        pathname.startsWith("/login") ||
+        pathname.startsWith("/forgot-password") ||
+        pathname.startsWith("/reset-password")
+      ) {
         if (isLoggedIn) {
           return Response.redirect(new URL("/", nextUrl));
         }

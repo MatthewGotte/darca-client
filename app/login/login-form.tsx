@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Alert from "@mui/material/Alert";
@@ -14,6 +15,7 @@ function LoginFormContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+  const resetSuccess = searchParams.get("reset") === "success";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,8 +50,12 @@ function LoginFormContent() {
         Sign in
       </Typography>
       <Typography variant="body2" color="text.secondary">
-        Enter your email and password. If you don't have an account, please contact your administrator.
+        Enter your email and password. If you do not have an account, please contact your administrator.
       </Typography>
+
+      {resetSuccess ? (
+        <Alert severity="success">Your password has been reset. You can sign in now.</Alert>
+      ) : null}
 
       {error ? <Alert severity="error">{error}</Alert> : null}
 
@@ -71,6 +77,11 @@ function LoginFormContent() {
         value={password}
         onChange={(event) => setPassword(event.target.value)}
       />
+      <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+        <Button component={Link} href="/forgot-password" variant="text" size="small">
+          Forgot password?
+        </Button>
+      </Box>
       <Button
         type="submit"
         variant="contained"
