@@ -1,15 +1,14 @@
-import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
+"use client";
+
+import { Typography } from "antd";
+
+const { Title, Text } = Typography;
 
 export default function HomePage() {
   return (
-    <Box>
-      <Typography variant="h4" component="h1" gutterBottom>
-        Home
-      </Typography>
-      <Typography variant="body1" color="text.secondary">
-        Welcome to DARCA Asset Intelligence.
-      </Typography>
-    </Box>
+    <div>
+      <Title level={2}>Home</Title>
+      <Text type="secondary">Welcome to DARCA Asset Intelligence.</Text>
+    </div>
   );
 }

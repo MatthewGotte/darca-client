@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
-import { AppRouterCacheProvider } from "@mui/material-nextjs/v16-appRouter";
+import { AntdRegistry } from "@ant-design/nextjs-registry";
+import "@ant-design/v5-patch-for-react-19";
 import ThemeRegistry from "@/components/theme-registry";
 import Providers from "@/app/providers";
 import "./globals.css";
@@ -24,12 +25,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={roboto.variable}>
-      <body className="min-h-full flex flex-col">
-        <AppRouterCacheProvider options={{ enableCssLayer: true }}>
+      <body style={{ minHeight: "100%", display: "flex", flexDirection: "column" }}>
+        <AntdRegistry>
           <ThemeRegistry>
             <Providers>{children}</Providers>
           </ThemeRegistry>
-        </AppRouterCacheProvider>
+        </AntdRegistry>
       </body>
     </html>
   );

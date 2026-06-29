@@ -1,26 +1,22 @@
 import Image from "next/image";
 import { Suspense } from "react";
-import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
-import Container from "@mui/material/Container";
-import Paper from "@mui/material/Paper";
+import { Card, Flex, Spin } from "antd";
 import ResetPasswordForm from "./reset-password-form";
 
 export default function ResetPasswordPage() {
   return (
-    <Box
-      component="main"
-      sx={{
+    <main
+      style={{
         flex: 1,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        bgcolor: "background.default",
-        py: 6,
+        background: "#f5f5f5",
+        padding: "48px 16px",
       }}
     >
-      <Container maxWidth="sm">
-        <Box sx={{ display: "flex", justifyContent: "center", mb: 4 }}>
+      <Flex vertical align="center" style={{ width: "100%", maxWidth: 480 }}>
+        <Flex justify="center" style={{ marginBottom: 32 }}>
           <Image
             src="/darca-logo.jpeg"
             alt="DARCA Asset Management"
@@ -29,13 +25,13 @@ export default function ResetPasswordPage() {
             priority
             style={{ height: 98, width: "auto" }}
           />
-        </Box>
-        <Paper elevation={2} sx={{ p: 4 }}>
-          <Suspense fallback={<CircularProgress size={24} />}>
+        </Flex>
+        <Card style={{ width: "100%" }}>
+          <Suspense fallback={<Spin />}>
             <ResetPasswordForm />
           </Suspense>
-        </Paper>
-      </Container>
-    </Box>
+        </Card>
+      </Flex>
+    </main>
   );
 }

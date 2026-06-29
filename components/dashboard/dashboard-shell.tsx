@@ -3,24 +3,14 @@
 import { useState } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import MenuIcon from "@mui/icons-material/Menu";
-import LogoutIcon from "@mui/icons-material/Logout";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Divider from "@mui/material/Divider";
-import Drawer from "@mui/material/Drawer";
-import IconButton from "@mui/material/IconButton";
-import List from "@mui/material/List";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import Toolbar from "@mui/material/Toolbar";
-import Tooltip from "@mui/material/Tooltip";
+import { LogoutOutlined, MenuOutlined } from "@ant-design/icons";
+import { Button, Drawer, Grid, Layout, Menu, Tooltip } from "antd";
 import Link from "@/components/link";
 import { useAuth } from "@/hooks/use-auth";
 import { navItems } from "./nav-items";
 
+const { Header, Sider, Content } = Layout;
+const { useBreakpoint } = Grid;
 const DRAWER_WIDTH = 240;
 
 export default function DashboardShell({
@@ -31,144 +21,118 @@ export default function DashboardShell({
   const pathname = usePathname();
   const { signOut } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const screens = useBreakpoint();
+  const isMobile = !screens.md;
 
-  const closeMobile = () => setMobileOpen(false);
+  const selectedKey =
+    navItems.find(({ href }) =>
+      href === "/" ? pathname === "/" : pathname.startsWith(href)
+    )?.href ?? "/";
 
-  const navList = (
-    <List sx={{ px: 1 }}>
-      {navItems.map(({ label, href, icon: Icon }) => {
-        const selected =
-          href === "/" ? pathname === "/" : pathname.startsWith(href);
+  const menuItems = navItems.map(({ label, href, icon: Icon }) => ({
+    key: href,
+    icon: <Icon />,
+    label: <Link href={href}>{label}</Link>,
+  }));
 
-        return (
-          <ListItem key={href} disablePadding>
-            <ListItemButton
-              component={Link}
-              href={href}
-              selected={selected}
-              onClick={closeMobile}
-              sx={{ borderRadius: 1 }}
-            >
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                <Icon />
-              </ListItemIcon>
-              <ListItemText primary={label} />
-            </ListItemButton>
-          </ListItem>
-        );
-      })}
-    </List>
+  const navMenu = (
+    <Menu
+      mode="inline"
+      selectedKeys={[selectedKey]}
+      items={menuItems}
+      onClick={() => setMobileOpen(false)}
+      style={{ borderInlineEnd: 0 }}
+    />
   );
 
   return (
-    <Box sx={{ display: "flex", flex: 1, minHeight: "100vh" }}>
-      <AppBar
-        position="fixed"
-        color="inherit"
-        elevation={0}
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          borderBottom: 1,
-          borderColor: "divider",
-          bgcolor: "background.paper",
+    <Layout style={{ flex: 1, minHeight: "100vh" }}>
+      <Header
+        style={{
+          position: "fixed",
+          top: 0,
+          zIndex: 100,
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          paddingInline: 16,
+          background: "#fff",
+          borderBottom: "1px solid #f0f0f0",
         }}
       >
-        <Toolbar sx={{ gap: 1 }}>
-          <IconButton
-            color="inherit"
-            edge="start"
+        {isMobile ? (
+          <Button
+            type="text"
+            icon={<MenuOutlined />}
             aria-label="Open navigation"
             onClick={() => setMobileOpen((open) => !open)}
-            sx={{ display: { md: "none" } }}
+          />
+        ) : null}
+
+        <Link href="/" aria-label="DARCA Asset Management home">
+          <Image
+            src="/darca-logo.jpeg"
+            alt="DARCA Asset Management"
+            width={132}
+            height={36}
+            priority
+            style={{ height: 36, width: "auto" }}
+          />
+        </Link>
+
+        <div style={{ flex: 1 }} />
+
+        <Tooltip title="Sign out">
+          <Button
+            type="text"
+            icon={<LogoutOutlined />}
+            aria-label="Sign out"
+            onClick={() => void signOut()}
+          />
+        </Tooltip>
+      </Header>
+
+      <Layout style={{ marginTop: 64 }}>
+        {!isMobile ? (
+          <Sider
+            width={DRAWER_WIDTH}
+            style={{
+              position: "fixed",
+              left: 0,
+              top: 64,
+              bottom: 0,
+              background: "#fff",
+              borderRight: "1px solid #f0f0f0",
+              overflow: "auto",
+            }}
           >
-            <MenuIcon />
-          </IconButton>
-
-          <Box
-            component={Link}
-            href="/"
-            sx={{ display: "inline-flex", alignItems: "center" }}
-            aria-label="DARCA Asset Management home"
+            {navMenu}
+          </Sider>
+        ) : (
+          <Drawer
+            title="Navigation"
+            placement="left"
+            open={mobileOpen}
+            onClose={() => setMobileOpen(false)}
+            width={DRAWER_WIDTH}
+            styles={{ body: { padding: 0 } }}
           >
-            <Image
-              src="/darca-logo.jpeg"
-              alt="DARCA Asset Management"
-              width={132}
-              height={36}
-              priority
-              style={{ height: 36, width: "auto" }}
-            />
-          </Box>
+            {navMenu}
+          </Drawer>
+        )}
 
-          <Box sx={{ flexGrow: 1 }} />
-
-          <Tooltip title="Sign out">
-            <IconButton
-              color="inherit"
-              aria-label="Sign out"
-              onClick={() => void signOut()}
-            >
-              <LogoutIcon />
-            </IconButton>
-          </Tooltip>
-        </Toolbar>
-      </AppBar>
-
-      <Box
-        component="nav"
-        aria-label="Main navigation"
-        sx={{ width: { md: DRAWER_WIDTH }, flexShrink: { md: 0 } }}
-      >
-        <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={closeMobile}
-          ModalProps={{ keepMounted: true }}
-          sx={{
-            display: { xs: "block", md: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: DRAWER_WIDTH,
-            },
+        <Content
+          style={{
+            marginLeft: isMobile ? 0 : DRAWER_WIDTH,
+            padding: 24,
+            minHeight: "calc(100vh - 64px)",
+            background: "#f5f5f5",
           }}
         >
-          <Toolbar />
-          <Divider />
-          {navList}
-        </Drawer>
-
-        <Drawer
-          variant="permanent"
-          open
-          sx={{
-            display: { xs: "none", md: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: DRAWER_WIDTH,
-              borderRight: 1,
-              borderColor: "divider",
-            },
-          }}
-        >
-          <Toolbar />
-          <Divider />
-          {navList}
-        </Drawer>
-      </Box>
-
-      <Box
-        component="main"
-        sx={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          width: { md: `calc(100% - ${DRAWER_WIDTH}px)` },
-          bgcolor: "background.default",
-        }}
-      >
-        <Toolbar />
-        <Box sx={{ flex: 1, p: 3 }}>{children}</Box>
-      </Box>
-    </Box>
+          {children}
+        </Content>
+      </Layout>
+    </Layout>
   );
 }

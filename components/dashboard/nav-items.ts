@@ -1,12 +1,12 @@
-import HomeIcon from "@mui/icons-material/Home";
-import type { SvgIconComponent } from "@mui/icons-material";
+import { HomeOutlined } from "@ant-design/icons";
+import type { ComponentType } from "react";
 
 export type NavItem = {
   label: string;
   href: string;
-  icon: SvgIconComponent;
+  icon: ComponentType;
 };
 
 export const navItems: NavItem[] = [
-  { label: "Home", href: "/", icon: HomeIcon },
+  { label: "Home", href: "/", icon: HomeOutlined },
 ];

@@ -3,13 +3,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import Alert from "@mui/material/Alert";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import { Alert, Button, Flex, Form, Input, Spin, Typography } from "antd";
 import { resetPassword, validateResetToken } from "@/lib/auth/server-api";
+
+const { Title, Paragraph } = Typography;
 
 type FormState = "validating" | "invalid" | "valid";
 
@@ -47,8 +44,7 @@ export default function ResetPasswordForm() {
     };
   }, [token]);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit() {
     setError(null);
 
     if (password.length < 8) {
@@ -85,72 +81,82 @@ export default function ResetPasswordForm() {
 
   if (formState === "validating") {
     return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 4 }}>
-        <CircularProgress size={32} />
-      </Box>
+      <Flex justify="center" style={{ padding: "32px 0" }}>
+        <Spin size="large" />
+      </Flex>
     );
   }
 
   if (formState === "invalid") {
     return (
-      <Box sx={{ display: "grid", gap: 2 }}>
-        <Typography variant="h5" component="h1" sx={{ fontWeight: 500 }}>
+      <Flex vertical gap={16}>
+        <Title level={3} style={{ marginBottom: 0 }}>
           Reset password
-        </Typography>
-        <Alert severity="error">
-          This reset link is invalid or has expired.
-        </Alert>
-        <Button component={Link} href="/forgot-password" variant="contained">
-          Request a new link
-        </Button>
-        <Button component={Link} href="/login" variant="text">
-          Back to sign in
-        </Button>
-      </Box>
+        </Title>
+        <Alert
+          type="error"
+          message="This reset link is invalid or has expired."
+          showIcon
+        />
+        <Link href="/forgot-password">
+          <Button type="primary" block>
+            Request a new link
+          </Button>
+        </Link>
+        <Link href="/login">
+          <Button type="link" block>
+            Back to sign in
+          </Button>
+        </Link>
+      </Flex>
     );
   }
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
-      <Typography variant="h5" component="h1" sx={{ fontWeight: 500 }}>
-        Choose a new password
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        Enter and confirm your new password.
-      </Typography>
+    <Flex vertical gap={16}>
+      <div>
+        <Title level={3} style={{ marginBottom: 8 }}>
+          Choose a new password
+        </Title>
+        <Paragraph type="secondary" style={{ marginBottom: 0 }}>
+          Enter and confirm your new password.
+        </Paragraph>
+      </div>
 
-      {error ? <Alert severity="error">{error}</Alert> : null}
+      {error ? <Alert type="error" message={error} showIcon /> : null}
 
-      <TextField
-        label="New password"
-        type="password"
-        autoComplete="new-password"
-        required
-        fullWidth
-        value={password}
-        onChange={(event) => setPassword(event.target.value)}
-      />
-      <TextField
-        label="Confirm password"
-        type="password"
-        autoComplete="new-password"
-        required
-        fullWidth
-        value={confirmPassword}
-        onChange={(event) => setConfirmPassword(event.target.value)}
-      />
-      <Button
-        type="submit"
-        variant="contained"
-        size="large"
-        disabled={isSubmitting}
-        startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : null}
-      >
-        {isSubmitting ? "Resetting..." : "Reset password"}
-      </Button>
-      <Button component={Link} href="/login" variant="text">
-        Back to sign in
-      </Button>
-    </Box>
+      <Form layout="vertical" onFinish={handleSubmit}>
+        <Form.Item label="New password" required>
+          <Input.Password
+            autoComplete="new-password"
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+          />
+        </Form.Item>
+        <Form.Item label="Confirm password" required>
+          <Input.Password
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(event) => setConfirmPassword(event.target.value)}
+          />
+        </Form.Item>
+        <Form.Item style={{ marginBottom: 8 }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            size="large"
+            block
+            loading={isSubmitting}
+          >
+            {isSubmitting ? "Resetting..." : "Reset password"}
+          </Button>
+        </Form.Item>
+        <Link href="/login">
+          <Button type="link" block>
+            Back to sign in
+          </Button>
+        </Link>
+      </Form>
+    </Flex>
   );
 }

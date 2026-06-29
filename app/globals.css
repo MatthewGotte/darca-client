@@ -1,6 +1,8 @@
-@import "tailwindcss";
-
-@layer theme, base, mui, components, utilities;
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
 
 html {
   color-scheme: light;

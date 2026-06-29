@@ -2,13 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Alert from "@mui/material/Alert";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import CircularProgress from "@mui/material/CircularProgress";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
+import { Alert, Button, Flex, Form, Input, Typography } from "antd";
 import { requestPasswordReset } from "@/lib/auth/server-api";
+
+const { Title, Paragraph } = Typography;
 
 export default function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -16,8 +13,7 @@ export default function ForgotPasswordForm() {
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  async function handleSubmit() {
     setError(null);
     setIsSubmitting(true);
 
@@ -33,52 +29,62 @@ export default function ForgotPasswordForm() {
 
   if (submitted) {
     return (
-      <Box sx={{ display: "grid", gap: 2 }}>
-        <Typography variant="h5" component="h1" sx={{ fontWeight: 500 }}>
+      <Flex vertical gap={16}>
+        <Title level={3} style={{ marginBottom: 0 }}>
           Check your email
-        </Typography>
-        <Alert severity="success">
-          If an account exists for that email, a reset link has been sent.
-        </Alert>
-        <Button component={Link} href="/login" variant="outlined">
-          Back to sign in
-        </Button>
-      </Box>
+        </Title>
+        <Alert
+          type="success"
+          message="If an account exists for that email, a reset link has been sent."
+          showIcon
+        />
+        <Link href="/login">
+          <Button block>Back to sign in</Button>
+        </Link>
+      </Flex>
     );
   }
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ display: "grid", gap: 2 }}>
-      <Typography variant="h5" component="h1" sx={{ fontWeight: 500 }}>
-        Reset password
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        Enter your email address and we will send you a link to reset your password.
-      </Typography>
+    <Flex vertical gap={16}>
+      <div>
+        <Title level={3} style={{ marginBottom: 8 }}>
+          Reset password
+        </Title>
+        <Paragraph type="secondary" style={{ marginBottom: 0 }}>
+          Enter your email address and we will send you a link to reset your
+          password.
+        </Paragraph>
+      </div>
 
-      {error ? <Alert severity="error">{error}</Alert> : null}
+      {error ? <Alert type="error" message={error} showIcon /> : null}
 
-      <TextField
-        label="Email"
-        type="email"
-        autoComplete="email"
-        required
-        fullWidth
-        value={email}
-        onChange={(event) => setEmail(event.target.value)}
-      />
-      <Button
-        type="submit"
-        variant="contained"
-        size="large"
-        disabled={isSubmitting}
-        startIcon={isSubmitting ? <CircularProgress size={18} color="inherit" /> : null}
-      >
-        {isSubmitting ? "Sending..." : "Send reset link"}
-      </Button>
-      <Button component={Link} href="/login" variant="text">
-        Back to sign in
-      </Button>
-    </Box>
+      <Form layout="vertical" onFinish={handleSubmit}>
+        <Form.Item label="Email" required>
+          <Input
+            type="email"
+            autoComplete="email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+          />
+        </Form.Item>
+        <Form.Item style={{ marginBottom: 8 }}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            size="large"
+            block
+            loading={isSubmitting}
+          >
+            {isSubmitting ? "Sending..." : "Send reset link"}
+          </Button>
+        </Form.Item>
+        <Link href="/login">
+          <Button type="link" block>
+            Back to sign in
+          </Button>
+        </Link>
+      </Form>
+    </Flex>
   );
 }

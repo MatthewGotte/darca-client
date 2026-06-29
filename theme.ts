@@ -1,19 +1,13 @@
-"use client";
+import type { ThemeConfig } from "antd";
 
-import { createTheme } from "@mui/material/styles";
-
-const theme = createTheme({
-  cssVariables: true,
-  colorSchemes: {
-    light: true,
-  },
-  defaultColorScheme: "light",
-  palette: {
-    mode: "light",
-  },
-  typography: {
+const theme: ThemeConfig = {
+  token: {
+    colorPrimary: "#E8772E",
+    colorLink: "#E8772E",
+    colorTextHeading: "#2B3A4E",
     fontFamily: "var(--font-roboto)",
+    borderRadius: 8,
   },
-});
+};
 
 export default theme;
