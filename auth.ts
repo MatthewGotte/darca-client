@@ -1,50 +1,36 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
+import { logAuthAuditEvent } from "@/lib/auth/audit-log";
 import {
   fetchCurrentUser,
   loginWithCredentials,
   refreshAccessToken,
 } from "@/lib/auth/server-api";
+import {
+  checkLoginRateLimit,
+  recordLoginFailure,
+  recordLoginSuccess,
+} from "@/lib/auth/login-rate-limit";
+import { shouldRequireMfa } from "@/lib/auth/mfa";
+import { getSafeCallbackUrl } from "@/lib/auth/safe-redirect";
+import {
+  authCookieConfig,
+  authSessionConfig,
+} from "@/lib/auth/session-config";
+import {
+  createRefreshFailedToken,
+  isTokenExpired,
+} from "@/lib/auth/token-session";
+import type { AuthJwt, AuthUser } from "@/lib/auth/types";
 
-type AuthUser = {
-  id: string;
-  organisationId: string;
-  name: string;
-  email: string;
-  accessToken: string;
-  refreshToken: string;
-  accessTokenExpires: number;
-  roles: string[];
-  permissions: string[];
-};
+class RateLimitExceededError extends CredentialsSignin {
+  code = "rate_limit_exceeded";
 
-type AuthJwt = {
-  id?: string;
-  organisationId?: string;
-  name?: string;
-  email?: string;
-  accessToken?: string;
-  refreshToken?: string;
-  accessTokenExpires?: number;
-  roles?: string[];
-  permissions?: string[];
-  error?: string;
-};
-
-declare module "next-auth" {
-  interface Session {
-    accessToken?: string;
-    refreshToken?: string;
-    accessTokenExpires?: number;
-    roles?: string[];
-    permissions?: string[];
-    error?: string;
-    user: {
-      id: string;
-      organisationId: string;
-      name?: string | null;
-      email?: string | null;
-    };
+  constructor(retryAfterSeconds?: number) {
+    super();
+    this.message = retryAfterSeconds
+      ? `Too many login attempts. Try again in ${retryAfterSeconds} seconds.`
+      : "Too many login attempts. Please try again later.";
   }
 }
 
@@ -71,7 +57,25 @@ async function rotateAccessToken(token: AuthJwt): Promise<AuthJwt> {
   };
 }
 
+declare module "next-auth" {
+  interface Session {
+    accessToken?: string;
+    refreshToken?: string;
+    accessTokenExpires?: number;
+    roles?: string[];
+    permissions?: string[];
+    error?: string;
+    user: {
+      id: string;
+      organisationId: string;
+      name?: string | null;
+      email?: string | null;
+    };
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   providers: [
     Credentials({
       credentials: {
@@ -79,41 +83,71 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       authorize: async (credentials) => {
-        if (!credentials?.email || !credentials?.password) {
+        const email = credentials?.email as string | undefined;
+        const password = credentials?.password as string | undefined;
+
+        if (!email || !password) {
           return null;
         }
 
-        const authResponse = await loginWithCredentials(
-          credentials.email as string,
-          credentials.password as string
-        );
-        const me = await fetchCurrentUser(authResponse.accessToken);
+        const rateCheck = checkLoginRateLimit(email);
+        if (!rateCheck.allowed) {
+          logAuthAuditEvent("SIGN_IN_RATE_LIMITED", { email });
+          throw new RateLimitExceededError(rateCheck.retryAfterSeconds);
+        }
 
-        const user: AuthUser = {
-          id: me.id,
-          organisationId: me.organisationId,
-          name: me.name,
-          email: me.email,
-          accessToken: authResponse.accessToken,
-          refreshToken: authResponse.refreshToken,
-          accessTokenExpires: Date.now() + authResponse.expiresIn * 1000,
-          roles: me.roles,
-          permissions: me.permissions,
-        };
+        try {
+          const authResponse = await loginWithCredentials(email, password);
+          const me = await fetchCurrentUser(authResponse.accessToken);
 
-        return user;
+          recordLoginSuccess(email);
+
+          if (shouldRequireMfa(me.roles)) {
+            logAuthAuditEvent("SIGN_IN_SUCCESS", {
+              email,
+              userId: me.id,
+              reason: "mfa_eligible_user",
+            });
+          } else {
+            logAuthAuditEvent("SIGN_IN_SUCCESS", { email, userId: me.id });
+          }
+
+          const user: AuthUser = {
+            id: me.id,
+            organisationId: me.organisationId,
+            name: me.name,
+            email: me.email,
+            accessToken: authResponse.accessToken,
+            refreshToken: authResponse.refreshToken,
+            accessTokenExpires: Date.now() + authResponse.expiresIn * 1000,
+            roles: me.roles,
+            permissions: me.permissions,
+          };
+
+          return user;
+        } catch (error) {
+          recordLoginFailure(email);
+          logAuthAuditEvent("SIGN_IN_FAILURE", {
+            email,
+            reason: error instanceof Error ? error.message : "unknown",
+          });
+          return null;
+        }
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
+  session: authSessionConfig,
+  cookies: authCookieConfig,
   pages: {
     signIn: "/login",
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
+    redirect({ url, baseUrl }) {
+      const safePath = getSafeCallbackUrl(url, baseUrl);
+      return new URL(safePath, baseUrl).toString();
+    },
+    authorized({ auth: session, request: { nextUrl } }) {
+      const isLoggedIn = !!session?.user && !session.error;
       const { pathname } = nextUrl;
 
       if (
@@ -148,20 +182,42 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         } satisfies AuthJwt;
       }
 
-      const accessTokenExpires = authToken.accessTokenExpires ?? 0;
+      if (authToken.error === "RefreshAccessTokenError") {
+        return createRefreshFailedToken(authToken);
+      }
 
-      if (Date.now() < accessTokenExpires - 60_000) {
+      if (!isTokenExpired(authToken.accessTokenExpires)) {
         return authToken;
       }
 
       try {
-        return await rotateAccessToken(authToken);
-      } catch {
-        return { ...authToken, error: "RefreshAccessTokenError" };
+        const refreshed = await rotateAccessToken(authToken);
+        logAuthAuditEvent("TOKEN_REFRESH_SUCCESS", {
+          userId: authToken.id,
+          email: authToken.email,
+        });
+        return refreshed;
+      } catch (error) {
+        logAuthAuditEvent("TOKEN_REFRESH_FAILURE", {
+          userId: authToken.id,
+          email: authToken.email,
+          reason: error instanceof Error ? error.message : "unknown",
+        });
+        return createRefreshFailedToken(authToken);
       }
     },
     session: async ({ session, token }) => {
       const authToken = token as AuthJwt;
+
+      if (authToken.error === "RefreshAccessTokenError") {
+        session.error = authToken.error;
+        session.accessToken = undefined;
+        session.refreshToken = undefined;
+        session.accessTokenExpires = undefined;
+        session.roles = [];
+        session.permissions = [];
+        return session;
+      }
 
       Object.assign(session.user, {
         id: authToken.id ?? "",
@@ -176,6 +232,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       session.permissions = authToken.permissions ?? [];
       session.error = authToken.error;
       return session;
+    },
+  },
+  events: {
+    signOut(message) {
+      const token = "token" in message ? (message.token as AuthJwt) : undefined;
+      logAuthAuditEvent("SIGN_OUT", {
+        userId: token?.id,
+        email: token?.email,
+      });
     },
   },
 });

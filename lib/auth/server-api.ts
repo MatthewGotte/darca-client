@@ -7,20 +7,42 @@ import type {
   ValidateResetTokenResponse,
 } from "@/lib/api/types";
 import { getApiBaseUrl } from "@/lib/api/axios-config";
+import {
+  AuthApiError,
+  FetchTimeoutError,
+  parseAuthError,
+} from "@/lib/auth/auth-api-error";
+import { logAuthAuditEvent } from "@/lib/auth/audit-log";
+import { fetchWithTimeout } from "@/lib/auth/fetch-with-timeout";
+
+export { AuthApiError, FetchTimeoutError };
+
+async function authFetch(
+  path: string,
+  init?: RequestInit
+): Promise<Response> {
+  try {
+    return await fetchWithTimeout(`${getApiBaseUrl()}${path}`, init);
+  } catch (error) {
+    if (error instanceof FetchTimeoutError) {
+      throw new AuthApiError("Request timed out. Please try again.", 408);
+    }
+    throw new AuthApiError("Unable to reach the server. Please try again.", 0);
+  }
+}
 
 export async function loginWithCredentials(
   email: string,
   password: string
 ): Promise<AuthResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/auth/login`, {
+  const response = await authFetch("/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(() => null);
-    throw new Error(body?.message ?? "Invalid email or password");
+    throw await parseAuthError(response);
   }
 
   return response.json();
@@ -29,14 +51,14 @@ export async function loginWithCredentials(
 export async function refreshAccessToken(
   refreshToken: string
 ): Promise<AuthResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/auth/refresh`, {
+  const response = await authFetch("/auth/refresh", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refreshToken }),
   });
 
   if (!response.ok) {
-    throw new Error("Failed to refresh access token");
+    throw await parseAuthError(response);
   }
 
   return response.json();
@@ -45,14 +67,14 @@ export async function refreshAccessToken(
 export async function fetchCurrentUser(
   accessToken: string
 ): Promise<MeResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/auth/me`, {
+  const response = await authFetch("/auth/me", {
     headers: {
       Authorization: `Bearer ${accessToken}`,
     },
   });
 
   if (!response.ok) {
-    throw new Error("Failed to fetch current user");
+    throw await parseAuthError(response);
   }
 
   return response.json();
@@ -60,21 +82,22 @@ export async function fetchCurrentUser(
 
 export async function requestPasswordReset(email: string): Promise<void> {
   const body: RequestPasswordResetRequest = { email };
-  const response = await fetch(`${getApiBaseUrl()}/auth/password/forgot`, {
+  const response = await authFetch("/auth/password/forgot", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    const errorBody = await response.json().catch(() => null);
-    throw new Error(errorBody?.message ?? "Something went wrong. Please try again.");
+    throw await parseAuthError(response);
   }
+
+  logAuthAuditEvent("PASSWORD_RESET_REQUESTED", { email });
 }
 
 export async function validateResetToken(token: string): Promise<boolean> {
   const body: ValidateResetTokenRequest = { token };
-  const response = await fetch(`${getApiBaseUrl()}/auth/password/reset/validate`, {
+  const response = await authFetch("/auth/password/reset/validate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -93,14 +116,15 @@ export async function resetPassword(
   newPassword: string
 ): Promise<void> {
   const body: ResetPasswordRequest = { token, newPassword };
-  const response = await fetch(`${getApiBaseUrl()}/auth/password/reset`, {
+  const response = await authFetch("/auth/password/reset", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
-    const errorBody = await response.json().catch(() => null);
-    throw new Error(errorBody?.message ?? "Unable to reset password. Please try again.");
+    throw await parseAuthError(response);
   }
+
+  logAuthAuditEvent("PASSWORD_RESET_COMPLETED");
 }

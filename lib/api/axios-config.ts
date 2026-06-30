@@ -59,7 +59,8 @@ api.interceptors.response.use(
 
     if (status === 401 && typeof window !== "undefined") {
       const { signOut } = await import("next-auth/react");
-      await signOut({ callbackUrl: "/login" });
+      const { getSafeCallbackUrl } = await import("@/lib/auth/safe-redirect");
+      await signOut({ callbackUrl: getSafeCallbackUrl("/login") });
     }
 
     const body = error.response?.data;

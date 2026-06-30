@@ -1,34 +1,53 @@
 import Image from "next/image";
-import { Card, Flex } from "antd";
 import LoginForm from "./login-form";
+import { getSafeCallbackUrl } from "@/lib/auth/safe-redirect";
+import styles from "./login-page.module.css";
 
-export default function LoginPage() {
+type LoginPageProps = {
+  searchParams: Promise<{ callbackUrl?: string; reset?: string }>;
+};
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
+  const params = await searchParams;
+
   return (
-    <main
-      style={{
-        flex: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#f5f5f5",
-        padding: "48px 16px",
-      }}
-    >
-      <Flex vertical align="center" style={{ width: "100%", maxWidth: 480 }}>
-        <Flex justify="center" style={{ marginBottom: 32 }}>
-          <Image
-            src="/darca-logo.jpeg"
-            alt="DARCA Asset Management"
-            width={360}
-            height={98}
-            priority
-            style={{ height: 98, width: "auto" }}
-          />
-        </Flex>
-        <Card style={{ width: "100%" }}>
-          <LoginForm />
-        </Card>
-      </Flex>
+    <main className={styles.page}>
+      <div className={styles.shell}>
+        <section className={styles.formPanel} aria-label="Sign in">
+          <div className={styles.formInner}>
+            <h1 className={styles.heading}>
+              Welcome back to
+              <span className={styles.headingAccent}>Management Made Simple</span>
+            </h1>
+            <p className={styles.subheading}>
+              Sign in to manage assets, jobs, and compliance across your
+              organisation.
+            </p>
+
+            <LoginForm
+              callbackUrl={getSafeCallbackUrl(params.callbackUrl)}
+              resetSuccess={params.reset === "success"}
+            />
+
+            <p className={styles.footer}>
+              Don&apos;t have an account? Contact your administrator.
+            </p>
+          </div>
+        </section>
+
+        <aside className={styles.brandPanel} aria-hidden="true">
+          <div className={styles.logoWrap}>
+            <Image
+              src="/darca-brand-logo-light.png"
+              alt="DARCA Asset Management"
+              fill
+              priority
+              sizes="(min-width: 992px) 380px, 0px"
+              style={{ objectFit: "contain" }}
+            />
+          </div>
+        </aside>
+      </div>
     </main>
   );
 }

@@ -1,106 +1,178 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
-import { Alert, Button, Flex, Form, Input, Spin, Typography } from "antd";
+import { Alert, Button, Form, Input } from "antd";
+import type { FormProps } from "antd";
+import {
+  getInvalidCredentialsAlert,
+  getLockoutAlert,
+} from "@/lib/auth/login-rate-limit-messages";
+import { getSafeCallbackUrl } from "@/lib/auth/safe-redirect";
+import styles from "./login-form.module.css";
 
-const { Title, Paragraph } = Typography;
+type LoginFields = {
+  email: string;
+  password: string;
+};
 
-function LoginFormContent() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
-  const resetSuccess = searchParams.get("reset") === "success";
+type LoginFormProps = {
+  callbackUrl: string;
+  resetSuccess: boolean;
+};
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+type LoginAlert = {
+  message: string;
+  description?: string;
+};
 
-  async function handleSubmit() {
-    setError(null);
-    setIsSubmitting(true);
+async function fetchLoginAttemptStatus(email: string) {
+  const response = await fetch("/api/auth/login-status", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
 
-    const result = await signIn("credentials", {
-      email,
-      password,
-      redirect: false,
-    });
-
-    setIsSubmitting(false);
-
-    if (result?.error) {
-      setError("Invalid email or password");
-      return;
-    }
-
-    router.push(callbackUrl);
-    router.refresh();
+  if (!response.ok) {
+    return null;
   }
 
+  return response.json() as Promise<{
+    locked: boolean;
+    attemptsRemaining: number;
+    retryAfterSeconds?: number;
+  }>;
+}
+
+export default function LoginForm({ callbackUrl, resetSuccess }: LoginFormProps) {
+  const safeCallbackUrl = getSafeCallbackUrl(callbackUrl);
+
+  const [form] = Form.useForm<LoginFields>();
+  const [alert, setAlert] = useState<LoginAlert | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleFinish: FormProps<LoginFields>["onFinish"] = async ({
+    email,
+    password,
+  }) => {
+    setAlert(null);
+    setIsSubmitting(true);
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        const status = await fetchLoginAttemptStatus(email);
+
+        if (result.code === "rate_limit_exceeded" || status?.locked) {
+          const retryAfterSeconds = status?.retryAfterSeconds ?? 15 * 60;
+          setAlert(getLockoutAlert(retryAfterSeconds));
+        } else {
+          setAlert(
+            getInvalidCredentialsAlert(status?.attemptsRemaining ?? 4)
+          );
+        }
+        return;
+      }
+
+      if (!result?.ok) {
+        setAlert({
+          message: "Unable to sign in",
+          description: "Something went wrong. Please try again in a moment.",
+        });
+        return;
+      }
+
+      window.location.assign(safeCallbackUrl);
+    } catch {
+      setAlert({
+        message: "Unable to sign in",
+        description: "Something went wrong. Please try again in a moment.",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
-    <Flex vertical gap={16}>
-      <div>
-        <Title level={3} style={{ marginBottom: 8 }}>
-          Sign in
-        </Title>
-        <Paragraph type="secondary" style={{ marginBottom: 0 }}>
-          Enter your email and password. If you do not have an account, please
-          contact your administrator.
-        </Paragraph>
-      </div>
+    <>
+      {(resetSuccess || alert) && (
+        <div className={styles.alerts}>
+          {resetSuccess ? (
+            <Alert
+              type="success"
+              message="Your password has been reset. You can sign in now."
+              showIcon
+            />
+          ) : null}
+          {alert ? (
+            <Alert
+              type="error"
+              message={alert.message}
+              description={alert.description}
+              showIcon
+            />
+          ) : null}
+        </div>
+      )}
 
-      {resetSuccess ? (
-        <Alert
-          type="success"
-          message="Your password has been reset. You can sign in now."
-          showIcon
-        />
-      ) : null}
-
-      {error ? <Alert type="error" message={error} showIcon /> : null}
-
-      <Form layout="vertical" onFinish={handleSubmit}>
-        <Form.Item label="Email" required>
+      <Form<LoginFields>
+        form={form}
+        layout="vertical"
+        requiredMark={false}
+        className={styles.form}
+        onFinish={handleFinish}
+      >
+        <Form.Item
+          name="email"
+          rules={[
+            { required: true, message: "Enter your email" },
+            { type: "email", message: "Enter a valid email" },
+          ]}
+        >
           <Input
+            size="large"
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
+            placeholder="Email address"
           />
         </Form.Item>
-        <Form.Item label="Password" required>
+
+        <Form.Item
+          name="password"
+          rules={[{ required: true, message: "Enter your password" }]}
+        >
           <Input.Password
+            size="large"
             autoComplete="current-password"
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
+            placeholder="Password"
           />
         </Form.Item>
-        <Flex justify="flex-end">
-          <Link href="/forgot-password">Forgot password?</Link>
-        </Flex>
-        <Form.Item style={{ marginBottom: 0, marginTop: 8 }}>
+
+        <Form.Item className={styles.submitItem}>
           <Button
             type="primary"
             htmlType="submit"
             size="large"
             block
             loading={isSubmitting}
+            className={styles.submit}
           >
-            {isSubmitting ? "Signing in..." : "Sign in"}
+            Sign in
           </Button>
         </Form.Item>
-      </Form>
-    </Flex>
-  );
-}
 
-export default function LoginForm() {
-  return (
-    <Suspense fallback={<Spin />}>
-      <LoginFormContent />
-    </Suspense>
+        <div className={styles.forgotWrap}>
+          <Link href="/forgot-password" className={styles.forgotLink}>
+            Forgot password?
+          </Link>
+        </div>
+      </Form>
+    </>
   );
 }

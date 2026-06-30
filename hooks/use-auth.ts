@@ -3,26 +3,30 @@
 import { useCallback, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
 import { logout } from "@/lib/api/api";
+import { getSafeCallbackUrl } from "@/lib/auth/safe-redirect";
 
 export function useAuth() {
   const { data: session, status } = useSession();
 
   useEffect(() => {
     if (session?.error === "RefreshAccessTokenError") {
-      void signOut({ callbackUrl: "/login" });
+      void signOut({ callbackUrl: getSafeCallbackUrl("/login") });
     }
   }, [session?.error]);
 
   const handleSignOut = useCallback(async () => {
-    if (session?.refreshToken) {
+    const refreshToken = session?.refreshToken;
+
+    if (refreshToken) {
       try {
-        await logout(session.refreshToken);
+        await logout(refreshToken);
       } catch {
         // Still clear the client session if revocation fails
       }
     }
-    await signOut({ callbackUrl: "/login" });
-  }, [session]);
+
+    await signOut({ callbackUrl: getSafeCallbackUrl("/login") });
+  }, [session?.refreshToken]);
 
   return {
     user: session?.user ?? null,

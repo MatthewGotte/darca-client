@@ -4,6 +4,11 @@ body {
   margin: 0;
 }
 
+body {
+  font-family: var(--font-roboto), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
 html {
   color-scheme: light;
 }
