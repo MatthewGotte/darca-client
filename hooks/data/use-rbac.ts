@@ -5,6 +5,8 @@ import {
   createOrganisationRole,
   deleteOrganisationRole,
   getOrganisationRole,
+  getUserLocationRoles,
+  getUserOrganisationRoles,
   listOrganisationRoles,
   listPermissions,
   updateOrganisationRole,
@@ -109,6 +111,25 @@ export function useUpdateUserOrganisationRoles(userId: string) {
     `mutation:update-user-org-roles:${userId}`,
     (body) => updateUserOrganisationRoles(userId, body),
     { invalidate: [queryKeys.userOrganisationRoles(userId)] }
+  );
+}
+
+export function useUserOrganisationRoles(userId: string | undefined) {
+  return useSWR(
+    userId ? queryKeys.userOrganisationRoles(userId) : null,
+    () => getUserOrganisationRoles(userId!)
+  );
+}
+
+export function useUserLocationRoles(
+  userId: string | undefined,
+  locationId: string | undefined
+) {
+  return useSWR(
+    userId && locationId
+      ? queryKeys.userLocationRoles(userId, locationId)
+      : null,
+    () => getUserLocationRoles(userId!, locationId!)
   );
 }
 

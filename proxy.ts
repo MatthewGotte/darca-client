@@ -1,3 +1,7 @@
+/**
+ * Layer-1 route guard (Next.js 16 "proxy"; formerly middleware).
+ * Enforces the `authorized` callback in auth.ts before dashboard routes render.
+ */
 export { auth as proxy } from "@/auth";
 
 export const config = {

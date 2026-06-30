@@ -11,7 +11,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["getOrganisationRoles"];
         put: operations["replaceOrganisationRoles"];
         post?: never;
         delete?: never;
@@ -27,7 +27,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        get: operations["getLocationRoles"];
         put: operations["replaceLocationRoles"];
         post?: never;
         delete?: never;
@@ -125,6 +125,38 @@ export interface paths {
         };
         get: operations["get_3"];
         put: operations["update_3"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organisations/{organisationId}/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listOrganisationAssets"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/organisations/{organisationId}/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listOrganisationJobs"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -1319,6 +1351,10 @@ export interface components {
             id?: string;
             /** Format: uuid */
             assetId?: string;
+            assetName?: string;
+            /** Format: uuid */
+            locationId?: string;
+            locationName?: string;
             title?: string;
             /** @enum {string} */
             type?: "PREVENTATIVE" | "CORRECTIVE" | "INSPECTION" | "EMERGENCY";
@@ -1355,6 +1391,51 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    getOrganisationRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserRoleAssignmentResponse"];
+                };
+            };
+        };
+    };
+    getLocationRoles: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                userId: string;
+                locationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["UserRoleAssignmentResponse"];
+                };
+            };
+        };
+    };
     replaceOrganisationRoles: {
         parameters: {
             query?: never;
@@ -1760,6 +1841,59 @@ export interface operations {
                 };
                 content: {
                     "*/*": components["schemas"]["OrganisationResponse"];
+                };
+            };
+        };
+    };
+    listOrganisationAssets: {
+        parameters: {
+            query?: {
+                locationId?: string;
+                status?: string;
+                categoryId?: string;
+            };
+            header?: never;
+            path: {
+                organisationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["AssetSummaryResponse"][];
+                };
+            };
+        };
+    };
+    listOrganisationJobs: {
+        parameters: {
+            query?: {
+                locationId?: string;
+                assetId?: string;
+                status?: "PENDING" | "IN_PROGRESS" | "COMPLETED" | "ARCHIVED";
+                priority?: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+            };
+            header?: never;
+            path: {
+                organisationId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description OK */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": components["schemas"]["JobSummaryResponse"][];
                 };
             };
         };

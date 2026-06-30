@@ -11,6 +11,7 @@ import {
   listAssetStatuses,
   listAssetStatusHistory,
   listLocationAssets,
+  listOrganisationAssets,
   replaceAssetCustomFields,
   replaceAssetIdentifiers,
   unassignAssetUser,
@@ -35,6 +36,16 @@ export function useLocationAssets(
   return useSWR(
     locationId ? queryKeys.assets(locationId, params) : null,
     () => listLocationAssets(locationId!, params)
+  );
+}
+
+export function useOrganisationAssets(
+  orgId: string | undefined,
+  params?: { locationId?: string; status?: AssetStatus; categoryId?: string }
+) {
+  return useSWR(
+    orgId ? queryKeys.organisationAssets(orgId, params) : null,
+    () => listOrganisationAssets(orgId!, params)
   );
 }
 

@@ -9,6 +9,7 @@ import {
   getJob,
   getJobHistory,
   listAssetJobs,
+  listOrganisationJobs,
   startJob,
   unassignJobUser,
   updateJob,
@@ -31,6 +32,21 @@ export function useAssetJobs(
   return useSWR(
     assetId ? queryKeys.jobs(assetId, params) : null,
     () => listAssetJobs(assetId!, params)
+  );
+}
+
+export function useOrganisationJobs(
+  orgId: string | undefined,
+  params?: {
+    locationId?: string;
+    assetId?: string;
+    status?: JobStatus;
+    priority?: JobPriority;
+  }
+) {
+  return useSWR(
+    orgId ? queryKeys.organisationJobs(orgId, params) : null,
+    () => listOrganisationJobs(orgId!, params)
   );
 }
 

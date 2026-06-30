@@ -1,4 +1,7 @@
-import { HomeOutlined } from "@ant-design/icons";
+import {
+  DatabaseOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
 import type { ComponentType } from "react";
 
 export type NavItem = {
@@ -9,4 +12,9 @@ export type NavItem = {
 
 export const navItems: NavItem[] = [
   { label: "Home", href: "/", icon: HomeOutlined },
+  {
+    label: "Reference data",
+    href: "/settings/reference-data",
+    icon: DatabaseOutlined,
+  },
 ];

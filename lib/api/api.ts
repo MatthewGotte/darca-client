@@ -285,6 +285,17 @@ export async function listLocationAssets(
   return data;
 }
 
+export async function listOrganisationAssets(
+  organisationId: string,
+  params?: { locationId?: string; status?: AssetStatus; categoryId?: string }
+): Promise<AssetSummaryResponse[]> {
+  const { data } = await api.get<AssetSummaryResponse[]>(
+    `/organisations/${organisationId}/assets`,
+    { params }
+  );
+  return data;
+}
+
 export async function getLocationAsset(
   locationId: string,
   assetId: string
@@ -473,6 +484,22 @@ export async function listAssetJobs(
 ): Promise<JobSummaryResponse[]> {
   const { data } = await api.get<JobSummaryResponse[]>(
     `/assets/${assetId}/jobs`,
+    { params }
+  );
+  return data;
+}
+
+export async function listOrganisationJobs(
+  organisationId: string,
+  params?: {
+    locationId?: string;
+    assetId?: string;
+    status?: JobStatus;
+    priority?: JobPriority;
+  }
+): Promise<JobSummaryResponse[]> {
+  const { data } = await api.get<JobSummaryResponse[]>(
+    `/organisations/${organisationId}/jobs`,
     { params }
   );
   return data;
@@ -742,6 +769,25 @@ export async function deleteOrganisationRole(
   roleId: string
 ): Promise<void> {
   await api.delete(`/organisations/${organisationId}/roles/${roleId}`);
+}
+
+export async function getUserOrganisationRoles(
+  userId: string
+): Promise<UserRoleAssignmentResponse> {
+  const { data } = await api.get<UserRoleAssignmentResponse>(
+    `/users/${userId}/organisation-roles`
+  );
+  return data;
+}
+
+export async function getUserLocationRoles(
+  userId: string,
+  locationId: string
+): Promise<UserRoleAssignmentResponse> {
+  const { data } = await api.get<UserRoleAssignmentResponse>(
+    `/users/${userId}/locations/${locationId}/roles`
+  );
+  return data;
 }
 
 export async function updateUserOrganisationRoles(

@@ -18,6 +18,8 @@ export const queryKeys = {
 
   assets: (locationId: string, params?: object) =>
     ["location", locationId, "assets", params ?? {}] as const,
+  organisationAssets: (orgId: string, params?: object) =>
+    ["organisation", orgId, "assets", params ?? {}] as const,
   asset: (locationId: string, assetId: string) =>
     ["location", locationId, "asset", assetId] as const,
   assetStatuses: () => ["asset-statuses"] as const,
@@ -33,6 +35,8 @@ export const queryKeys = {
 
   jobs: (assetId: string, params?: object) =>
     ["asset", assetId, "jobs", params ?? {}] as const,
+  organisationJobs: (orgId: string, params?: object) =>
+    ["organisation", orgId, "jobs", params ?? {}] as const,
   job: (jobId: string) => ["job", jobId] as const,
   jobHistory: (jobId: string) => ["job", jobId, "history"] as const,
 
