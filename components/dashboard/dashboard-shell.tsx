@@ -7,6 +7,7 @@ import { LogoutOutlined, MenuOutlined } from "@ant-design/icons";
 import { Button, Drawer, Grid, Layout, Menu, Tooltip } from "antd";
 import Link from "@/components/link";
 import { useAuth } from "@/hooks/use-auth";
+import { usePermission } from "@/hooks/use-permission";
 import { navItems } from "./nav-items";
 
 const { Header, Sider, Content } = Layout;
@@ -20,16 +21,23 @@ export default function DashboardShell({
 }) {
   const pathname = usePathname();
   const { signOut } = useAuth();
+  const { has, hasAny } = usePermission();
   const [mobileOpen, setMobileOpen] = useState(false);
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
+  const visibleNavItems = navItems.filter(({ permission, any }) => {
+    if (permission) return has(permission);
+    if (any) return hasAny(any);
+    return true;
+  });
+
   const selectedKey =
-    navItems.find(({ href }) =>
+    visibleNavItems.find(({ href }) =>
       href === "/" ? pathname === "/" : pathname.startsWith(href)
     )?.href ?? "/";
 
-  const menuItems = navItems.map(({ label, href, icon: Icon }) => ({
+  const menuItems = visibleNavItems.map(({ label, href, icon: Icon }) => ({
     key: href,
     icon: <Icon />,
     label: <Link href={href}>{label}</Link>,

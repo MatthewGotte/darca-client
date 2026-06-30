@@ -5,6 +5,8 @@ import {
   createOrganisationRole,
   deleteOrganisationRole,
   getOrganisationRole,
+  getUserLocationRoles,
+  getUserOrganisationRoles,
   listOrganisationRoles,
   listPermissions,
   updateOrganisationRole,
@@ -98,6 +100,23 @@ export function useDeleteOrganisationRole(orgId: string, roleId: string) {
         queryKeys.role(orgId, roleId),
       ],
     }
+  );
+}
+
+export function useUserOrganisationRoles(userId: string | undefined) {
+  return useSWR(
+    userId ? queryKeys.userOrganisationRoles(userId) : null,
+    () => getUserOrganisationRoles(userId!)
+  );
+}
+
+export function useUserLocationRoles(
+  userId: string | undefined,
+  locationId: string | undefined
+) {
+  return useSWR(
+    userId && locationId ? queryKeys.userLocationRoles(userId, locationId) : null,
+    () => getUserLocationRoles(userId!, locationId!)
   );
 }
 
