@@ -187,7 +187,7 @@ export default function UserDetailPage() {
           onCancel={() => setEditModalOpen(false)}
           okText="Save"
           confirmLoading={isUpdating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={editForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item
@@ -210,7 +210,7 @@ export default function UserDetailPage() {
           }}
           okText="Update Password"
           confirmLoading={isSettingPassword}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={passwordForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

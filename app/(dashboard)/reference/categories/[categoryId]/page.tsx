@@ -31,13 +31,9 @@ import {
 import { useCustomFields } from "@/hooks/data/use-custom-fields";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateCategoryRequest } from "@/lib/api/types";
+import type { CustomFieldResponse } from "@/lib/api/schema-types";
 
-type CustomFieldRow = {
-  id: string;
-  label: string;
-  dataType: string;
-  required: boolean;
-};
+type CustomFieldRow = CustomFieldResponse;
 
 export default function CategoryDetailPage() {
   const { categoryId } = useParams<{ categoryId: string }>();
@@ -64,7 +60,11 @@ export default function CategoryDetailPage() {
 
   const openFieldsDrawer = () => {
     if (category?.customFields) {
-      setSelectedFieldIds(category.customFields.map((f: CustomFieldRow) => f.id));
+      setSelectedFieldIds(
+        category.customFields
+          .map((f) => f.id)
+          .filter((id): id is string => id != null)
+      );
     }
     setFieldsDrawerOpen(true);
   };
@@ -172,7 +172,7 @@ export default function CategoryDetailPage() {
           }}
           okText="Save"
           confirmLoading={isUpdating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={editForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

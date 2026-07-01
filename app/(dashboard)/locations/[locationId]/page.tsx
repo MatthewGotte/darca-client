@@ -342,7 +342,7 @@ export default function LocationDetailPage() {
           onCancel={() => setEditModalOpen(false)}
           okText="Save"
           confirmLoading={updatingLocation}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={editForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item
@@ -383,7 +383,7 @@ export default function LocationDetailPage() {
           }}
           okText="Create"
           confirmLoading={creatingLine}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={lineForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item
@@ -408,7 +408,7 @@ export default function LocationDetailPage() {
             assetForm.resetFields();
           }}
           width={520}
-          destroyOnHide
+          destroyOnHidden
           extra={
             <Space>
               <Button onClick={() => {

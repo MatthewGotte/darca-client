@@ -78,7 +78,7 @@ export default function OrganisationSettingsPage() {
           onCancel={() => setEditModalOpen(false)}
           okText="Save"
           confirmLoading={isMutating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

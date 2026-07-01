@@ -64,10 +64,12 @@ export default function ComplianceScheduleDetailPage() {
     const values = await form.validateFields();
     try {
       await updateSchedule({
-        ...values,
-        nextDueDate: values.nextDueDate
-          ? dayjs(values.nextDueDate as unknown as string).toISOString()
-          : undefined,
+        title: values.title,
+        description: values.description,
+        frequencyInterval: values.frequencyInterval,
+        frequencyUnit: values.frequencyUnit,
+        active: values.active,
+        nextDueDate: dayjs(values.nextDueDate as unknown as string).toISOString(),
       });
       message.success("Schedule updated");
       setEditOpen(false);
@@ -106,7 +108,7 @@ export default function ComplianceScheduleDetailPage() {
       href: `/locations/${locationId}/assets/${assetId}`,
     },
     { label: "Compliance" },
-    { label: schedule.title },
+    { label: schedule.title ?? "Schedule" },
   ];
 
   return (
@@ -182,7 +184,7 @@ export default function ComplianceScheduleDetailPage() {
           open={editOpen}
           onClose={() => setEditOpen(false)}
           width={480}
-          destroyOnHide
+          destroyOnHidden
           footer={
             <Space>
               <Button onClick={() => setEditOpen(false)}>Cancel</Button>

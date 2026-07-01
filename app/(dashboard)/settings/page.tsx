@@ -97,7 +97,7 @@ export default function SettingsPage() {
         }}
         okText="Change Password"
         confirmLoading={isMutating}
-        destroyOnHide
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
           <Form.Item

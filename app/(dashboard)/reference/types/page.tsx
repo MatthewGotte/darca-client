@@ -92,7 +92,7 @@ export default function TypesPage() {
           }}
           okText="Create"
           confirmLoading={isMutating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

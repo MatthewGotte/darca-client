@@ -174,7 +174,10 @@ function AssignmentsTab({
       </Space>
 
       <DataTable
-        dataSource={job.assignments ?? []}
+        dataSource={(job.assignments ?? []).filter(
+          (assignment): assignment is typeof assignment & { userId: string } =>
+            assignment.userId != null
+        )}
         columns={columns}
         rowKey="userId"
         pagination={false}
@@ -190,7 +193,7 @@ function AssignmentsTab({
         }}
         okText="Assign"
         confirmLoading={assigning}
-        destroyOnHide
+        destroyOnHidden
       >
         <Select
           style={{ width: "100%", marginTop: 16 }}
@@ -310,10 +313,10 @@ export default function JobDetailPage() {
     const values = await editForm.validateFields();
     try {
       await updateJob({
-        ...values,
-        dueDate: values.dueDate
-          ? dayjs(values.dueDate as unknown as string).toISOString()
-          : undefined,
+        title: values.title,
+        description: values.description,
+        priority: values.priority,
+        dueDate: dayjs(values.dueDate as unknown as string).toISOString(),
       });
       message.success("Job updated");
       setEditOpen(false);
@@ -373,7 +376,7 @@ export default function JobDetailPage() {
       href: `/locations/${locationId}/assets/${assetId}`,
     },
     { label: "Jobs" },
-    { label: job.title },
+    { label: job.title ?? "Job" },
   ];
 
   const lifecycleActions = (
@@ -464,7 +467,7 @@ export default function JobDetailPage() {
           open={editOpen}
           onClose={() => setEditOpen(false)}
           width={480}
-          destroyOnHide
+          destroyOnHidden
           footer={
             <Space>
               <Button onClick={() => setEditOpen(false)}>Cancel</Button>
@@ -514,7 +517,7 @@ export default function JobDetailPage() {
           onCancel={() => setStartOpen(false)}
           okText="Start"
           confirmLoading={starting}
-          destroyOnHide
+          destroyOnHidden
         >
           <Typography.Text>
             Are you sure you want to start this job? It will transition from
@@ -533,7 +536,7 @@ export default function JobDetailPage() {
           }}
           okText="Complete"
           confirmLoading={completing}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={completeForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

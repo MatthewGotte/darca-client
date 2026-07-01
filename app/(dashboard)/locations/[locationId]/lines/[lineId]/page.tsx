@@ -152,7 +152,7 @@ export default function LineDetailPage() {
           onCancel={() => setEditModalOpen(false)}
           okText="Save"
           confirmLoading={updatingLine}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={editForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

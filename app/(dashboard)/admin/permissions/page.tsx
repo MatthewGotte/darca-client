@@ -1,6 +1,6 @@
 "use client";
 
-import { Collapse, List, Skeleton, Space, Typography } from "antd";
+import { Collapse, List, Skeleton, Typography } from "antd";
 import PageHeader from "@/components/page-header";
 import RequirePermission from "@/components/require-permission";
 import { usePermissions } from "@/hooks/data/use-rbac";
@@ -11,27 +11,19 @@ export default function PermissionsPage() {
 
   const collapseItems = (groups ?? [])
     .slice()
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .sort((a, b) => (a.group ?? "").localeCompare(b.group ?? ""))
     .map((group) => ({
-      key: group.id,
-      label: (
-        <Space>
-          <Typography.Text strong>{group.name}</Typography.Text>
-          {group.description && (
-            <Typography.Text type="secondary">{group.description}</Typography.Text>
-          )}
-        </Space>
-      ),
+      key: group.group ?? "ungrouped",
+      label: <Typography.Text strong>{group.group ?? "Ungrouped"}</Typography.Text>,
       children: (
         <List
           size="small"
-          dataSource={group.permissions
+          dataSource={(group.permissions ?? [])
             .slice()
             .sort(
-              (a: { displayOrder?: number }, b: { displayOrder?: number }) =>
-                (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
+              (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
             )}
-          renderItem={(perm: { id: string; name: string; description?: string }) => (
+          renderItem={(perm) => (
             <List.Item>
               <List.Item.Meta
                 title={perm.name}
