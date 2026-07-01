@@ -2,17 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="28bc5ef2-7636-4b39-a61d-fb7a63fab293" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/app/api/auth/[...nextauth]/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/api/auth/[...nextauth]/route.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/login/login-form.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/login/login-form.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/login/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/login/page.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/hooks/use-auth.ts" beforeDir="false" afterPath="$PROJECT_DIR$/hooks/use-auth.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/api/axios-config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/axios-config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/auth/server-api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/auth/server-api.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/(dashboard)/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/(dashboard)/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/dashboard/dashboard-shell.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/dashboard/dashboard-shell.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/dashboard/nav-items.ts" beforeDir="false" afterPath="$PROJECT_DIR$/components/dashboard/nav-items.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hooks/data/use-rbac.ts" beforeDir="false" afterPath="$PROJECT_DIR$/hooks/data/use-rbac.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/api/api.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/api/api.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,7 +31,7 @@
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
-    "git-widget-placeholder": "darca-client-login-redesign",
+    "git-widget-placeholder": "darca-client-ui-requirements-map-plan",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/fabiowood/Desktop/darca-client",
     "nodejs_package_manager_path": "npm",

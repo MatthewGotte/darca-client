@@ -744,6 +744,25 @@ export async function deleteOrganisationRole(
   await api.delete(`/organisations/${organisationId}/roles/${roleId}`);
 }
 
+export async function getUserOrganisationRoles(
+  userId: string
+): Promise<UserRoleAssignmentResponse> {
+  const { data } = await api.get<UserRoleAssignmentResponse>(
+    `/users/${userId}/organisation-roles`
+  );
+  return data;
+}
+
+export async function getUserLocationRoles(
+  userId: string,
+  locationId: string
+): Promise<UserRoleAssignmentResponse> {
+  const { data } = await api.get<UserRoleAssignmentResponse>(
+    `/users/${userId}/locations/${locationId}/roles`
+  );
+  return data;
+}
+
 export async function updateUserOrganisationRoles(
   userId: string,
   body: AssignRolesRequest
