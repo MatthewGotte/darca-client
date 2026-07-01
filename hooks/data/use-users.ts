@@ -41,7 +41,7 @@ export function useCreateOrganisationUser(orgId: string) {
   return useApiMutation<CreateUserRequest, Awaited<ReturnType<typeof createOrganisationUser>>>(
     `mutation:create-user:${orgId}`,
     (body) => createOrganisationUser(orgId, body),
-    { invalidate: [queryKeys.users(orgId)] }
+    { invalidate: [queryKeys.usersList(orgId)] }
   );
 }
 
@@ -51,7 +51,7 @@ export function useUpdateOrganisationUser(orgId: string, userId: string) {
     (body) => updateOrganisationUser(orgId, userId, body),
     {
       invalidate: [
-        queryKeys.users(orgId),
+        queryKeys.usersList(orgId),
         queryKeys.user(orgId, userId),
       ],
     }
@@ -64,7 +64,7 @@ export function useDeleteOrganisationUser(orgId: string, userId: string) {
     () => deleteOrganisationUser(orgId, userId),
     {
       invalidate: [
-        queryKeys.users(orgId),
+        queryKeys.usersList(orgId),
         queryKeys.user(orgId, userId),
       ],
     }

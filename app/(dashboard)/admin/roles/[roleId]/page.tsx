@@ -59,7 +59,6 @@ export default function RoleDetailPage() {
   const [editForm] = Form.useForm<UpdateRoleRequest>();
 
   const handleEdit = () => {
-    editForm.setFieldsValue({ name: role?.name ?? "", description: role?.description ?? "" });
     setEditModalOpen(true);
   };
 
@@ -220,6 +219,14 @@ export default function RoleDetailPage() {
           okText="Save"
           confirmLoading={isUpdating}
           destroyOnHidden
+          afterOpenChange={(open) => {
+            if (open) {
+              editForm.setFieldsValue({
+                name: role?.name ?? "",
+                description: role?.description ?? "",
+              });
+            }
+          }}
         >
           <Form form={editForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

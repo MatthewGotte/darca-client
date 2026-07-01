@@ -96,9 +96,11 @@ function DetailsTab({
 
 function AssignmentsTab({
   job,
-  jobId }: {
+  jobId,
+  assetId }: {
   job: NonNullable<ReturnType<typeof useJob>["data"]>;
   jobId: string;
+  assetId: string;
 }) {
   const { message } = useAppMessage();
   const orgId = useOrgId();
@@ -108,9 +110,9 @@ function AssignmentsTab({
 
   const { data: users } = useOrganisationUsers(orgId);
   const { trigger: assignUser, isMutating: assigning } =
-    useAssignJobUser(jobId);
+    useAssignJobUser(jobId, assetId);
   const { trigger: unassignUser, isMutating: unassigning } =
-    useUnassignJobUser(jobId, removeTarget ?? "");
+    useUnassignJobUser(jobId, assetId, removeTarget ?? "");
 
   const handleAssign = async () => {
     if (!selectedUserId) return;
@@ -420,7 +422,7 @@ export default function JobDetailPage() {
     {
       key: "assignments",
       label: "Assignments",
-      children: <AssignmentsTab job={job} jobId={jobId} /> },
+      children: <AssignmentsTab job={job} jobId={jobId} assetId={assetId} /> },
     {
       key: "history",
       label: "History",

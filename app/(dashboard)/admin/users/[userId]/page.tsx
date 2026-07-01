@@ -55,7 +55,6 @@ export default function UserDetailPage() {
   const [passwordForm] = Form.useForm<SetPasswordRequest>();
 
   const handleEdit = () => {
-    editForm.setFieldsValue({ name: user?.name ?? "" });
     setEditModalOpen(true);
   };
 
@@ -181,6 +180,11 @@ export default function UserDetailPage() {
           okText="Save"
           confirmLoading={isUpdating}
           destroyOnHidden
+          afterOpenChange={(open) => {
+            if (open) {
+              editForm.setFieldsValue({ name: user?.name ?? "" });
+            }
+          }}
         >
           <Form form={editForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

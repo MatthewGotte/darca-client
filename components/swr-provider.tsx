@@ -7,6 +7,7 @@ export default function SwrProvider({ children }: { children: React.ReactNode })
     <SWRConfig
       value={{
         revalidateOnFocus: true,
+        revalidateOnReconnect: true,
         shouldRetryOnError: false,
         keepPreviousData: true,
       }}

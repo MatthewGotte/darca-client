@@ -6,7 +6,16 @@ import { useSWRConfig } from "swr";
 export function matchKey(prefix: readonly unknown[]) {
   return (key: unknown): boolean => {
     if (!Array.isArray(key)) return false;
-    return prefix.every((segment, index) => key[index] === segment);
+    for (let index = 0; index < prefix.length; index++) {
+      const expected = prefix[index];
+      const actual = key[index];
+      if (typeof expected === "object" && expected !== null) {
+        if (typeof actual !== "object" || actual === null) return false;
+        continue;
+      }
+      if (actual !== expected) return false;
+    }
+    return true;
   };
 }
 

@@ -4,13 +4,19 @@ export const queryKeys = {
   organisation: (id: string) => ["organisation", id] as const,
   organisationAssets: (orgId: string, params?: object) =>
     ["organisation", orgId, "assets", params ?? {}] as const,
+  organisationAssetsList: (orgId: string) =>
+    ["organisation", orgId, "assets"] as const,
   organisationJobs: (orgId: string, params?: object) =>
     ["organisation", orgId, "jobs", params ?? {}] as const,
+  organisationJobsList: (orgId: string) => ["organisation", orgId, "jobs"] as const,
   organisationComplianceSchedules: (orgId: string, params?: object) =>
     ["organisation", orgId, "compliance-schedules", params ?? {}] as const,
+  organisationComplianceSchedulesList: (orgId: string) =>
+    ["organisation", orgId, "compliance-schedules"] as const,
 
   users: (orgId: string, params?: object) =>
     ["organisation", orgId, "users", params ?? {}] as const,
+  usersList: (orgId: string) => ["organisation", orgId, "users"] as const,
   user: (orgId: string, userId: string) =>
     ["organisation", orgId, "user", userId] as const,
 
@@ -24,6 +30,7 @@ export const queryKeys = {
 
   assets: (locationId: string, params?: object) =>
     ["location", locationId, "assets", params ?? {}] as const,
+  assetsList: (locationId: string) => ["location", locationId, "assets"] as const,
   asset: (locationId: string, assetId: string) =>
     ["location", locationId, "asset", assetId] as const,
   assetStatuses: () => ["asset-statuses"] as const,
@@ -39,6 +46,7 @@ export const queryKeys = {
 
   jobs: (assetId: string, params?: object) =>
     ["asset", assetId, "jobs", params ?? {}] as const,
+  jobsList: (assetId: string) => ["asset", assetId, "jobs"] as const,
   job: (jobId: string) => ["job", jobId] as const,
   jobHistory: (jobId: string) => ["job", jobId, "history"] as const,
 

@@ -15,6 +15,7 @@ import {
 } from "@/lib/api/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import { useApiMutation } from "@/lib/api/swr";
+import { useOrgId } from "@/hooks/use-org-id";
 import type {
   AssignJobUserRequest,
   CompleteJobRequest,
@@ -23,6 +24,13 @@ import type {
   JobStatus,
   UpdateJobRequest,
 } from "@/lib/api/types";
+
+function jobListInvalidation(assetId: string, orgId: string | undefined) {
+  return [
+    queryKeys.jobsList(assetId),
+    ...(orgId ? [queryKeys.organisationJobsList(orgId)] : []),
+  ];
+}
 
 export function useAssetJobs(
   assetId: string | undefined,
@@ -49,17 +57,19 @@ export function useJobHistory(jobId: string | undefined) {
 }
 
 export function useCreateAssetJob(assetId: string) {
+  const orgId = useOrgId();
   return useApiMutation<
     CreateJobRequest,
     Awaited<ReturnType<typeof createAssetJob>>
   >(
     `mutation:create-job:${assetId}`,
     (body) => createAssetJob(assetId, body),
-    { invalidate: [queryKeys.jobs(assetId)] }
+    { invalidate: jobListInvalidation(assetId, orgId) }
   );
 }
 
 export function useUpdateJob(jobId: string, assetId: string) {
+  const orgId = useOrgId();
   return useApiMutation<
     UpdateJobRequest,
     Awaited<ReturnType<typeof updateJob>>
@@ -69,20 +79,21 @@ export function useUpdateJob(jobId: string, assetId: string) {
     {
       invalidate: [
         queryKeys.job(jobId),
-        queryKeys.jobs(assetId),
+        ...jobListInvalidation(assetId, orgId),
       ],
     }
   );
 }
 
 export function useStartJob(jobId: string, assetId: string) {
+  const orgId = useOrgId();
   return useApiMutation<void, Awaited<ReturnType<typeof startJob>>>(
     `mutation:start-job:${jobId}`,
     () => startJob(jobId),
     {
       invalidate: [
         queryKeys.job(jobId),
-        queryKeys.jobs(assetId),
+        ...jobListInvalidation(assetId, orgId),
         queryKeys.jobHistory(jobId),
       ],
     }
@@ -90,6 +101,7 @@ export function useStartJob(jobId: string, assetId: string) {
 }
 
 export function useCompleteJob(jobId: string, assetId: string) {
+  const orgId = useOrgId();
   return useApiMutation<
     CompleteJobRequest,
     Awaited<ReturnType<typeof completeJob>>
@@ -99,7 +111,7 @@ export function useCompleteJob(jobId: string, assetId: string) {
     {
       invalidate: [
         queryKeys.job(jobId),
-        queryKeys.jobs(assetId),
+        ...jobListInvalidation(assetId, orgId),
         queryKeys.jobHistory(jobId),
       ],
     }
@@ -107,34 +119,49 @@ export function useCompleteJob(jobId: string, assetId: string) {
 }
 
 export function useArchiveJob(jobId: string, assetId: string) {
+  const orgId = useOrgId();
   return useApiMutation<void, Awaited<ReturnType<typeof archiveJob>>>(
     `mutation:archive-job:${jobId}`,
     () => archiveJob(jobId),
     {
       invalidate: [
         queryKeys.job(jobId),
-        queryKeys.jobs(assetId),
+        ...jobListInvalidation(assetId, orgId),
         queryKeys.jobHistory(jobId),
       ],
     }
   );
 }
 
-export function useAssignJobUser(jobId: string) {
+export function useAssignJobUser(jobId: string, assetId: string) {
+  const orgId = useOrgId();
   return useApiMutation<
     AssignJobUserRequest,
     Awaited<ReturnType<typeof assignJobUser>>
   >(
     `mutation:assign-job-user:${jobId}`,
     (body) => assignJobUser(jobId, body),
-    { invalidate: [queryKeys.job(jobId)] }
+    {
+      invalidate: [
+        queryKeys.job(jobId),
+        ...jobListInvalidation(assetId, orgId),
+        queryKeys.jobHistory(jobId),
+      ],
+    }
   );
 }
 
-export function useUnassignJobUser(jobId: string, userId: string) {
+export function useUnassignJobUser(jobId: string, assetId: string, userId: string) {
+  const orgId = useOrgId();
   return useApiMutation<void, void>(
     `mutation:unassign-job-user:${jobId}:${userId}`,
     () => unassignJobUser(jobId, userId),
-    { invalidate: [queryKeys.job(jobId)] }
+    {
+      invalidate: [
+        queryKeys.job(jobId),
+        ...jobListInvalidation(assetId, orgId),
+        queryKeys.jobHistory(jobId),
+      ],
+    }
   );
 }

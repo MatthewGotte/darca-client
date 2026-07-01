@@ -19,6 +19,7 @@ import {
 } from "@/lib/api/api";
 import { queryKeys } from "@/lib/api/query-keys";
 import { useApiMutation } from "@/lib/api/swr";
+import { useOrgId } from "@/hooks/use-org-id";
 import type {
   AssetCustomFieldValueRequest,
   AssetIdentifierRequest,
@@ -27,6 +28,13 @@ import type {
   CreateAssetRequest,
   UpdateAssetRequest,
 } from "@/lib/api/types";
+
+function assetListInvalidation(locationId: string, orgId: string | undefined) {
+  return [
+    queryKeys.assetsList(locationId),
+    ...(orgId ? [queryKeys.organisationAssetsList(orgId)] : []),
+  ];
+}
 
 export function useLocationAssets(
   locationId: string | undefined,
@@ -67,17 +75,19 @@ export function useAssetAttachments(assetId: string | undefined) {
 }
 
 export function useCreateAsset(locationId: string) {
+  const orgId = useOrgId();
   return useApiMutation<
     CreateAssetRequest,
     Awaited<ReturnType<typeof createLocationAsset>>
   >(
     `mutation:create-asset:${locationId}`,
     (body) => createLocationAsset(locationId, body),
-    { invalidate: [queryKeys.assets(locationId)] }
+    { invalidate: assetListInvalidation(locationId, orgId) }
   );
 }
 
 export function useUpdateAsset(locationId: string, assetId: string) {
+  const orgId = useOrgId();
   return useApiMutation<
     UpdateAssetRequest,
     Awaited<ReturnType<typeof updateLocationAsset>>
@@ -86,7 +96,7 @@ export function useUpdateAsset(locationId: string, assetId: string) {
     (body) => updateLocationAsset(locationId, assetId, body),
     {
       invalidate: [
-        queryKeys.assets(locationId),
+        ...assetListInvalidation(locationId, orgId),
         queryKeys.asset(locationId, assetId),
         queryKeys.assetStatusHistory(assetId),
       ],
@@ -95,12 +105,13 @@ export function useUpdateAsset(locationId: string, assetId: string) {
 }
 
 export function useDeleteAsset(locationId: string, assetId: string) {
+  const orgId = useOrgId();
   return useApiMutation<void, void>(
     `mutation:delete-asset:${locationId}:${assetId}`,
     () => deleteLocationAsset(locationId, assetId),
     {
       invalidate: [
-        queryKeys.assets(locationId),
+        ...assetListInvalidation(locationId, orgId),
         queryKeys.asset(locationId, assetId),
       ],
     }
