@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
@@ -48,14 +48,13 @@ export default function RoleDetailPage() {
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [checkedIds, setCheckedIds] = useState<string[]>([]);
+  const serverCheckedIds = useMemo(
+    () => role?.permissions?.map((p: { id: string }) => p.id) ?? [],
+    [role]
+  );
+  const [draftCheckedIds, setDraftCheckedIds] = useState<string[] | null>(null);
+  const checkedIds = draftCheckedIds ?? serverCheckedIds;
   const [editForm] = Form.useForm<UpdateRoleRequest>();
-
-  useEffect(() => {
-    if (role?.permissions) {
-      setCheckedIds(role.permissions.map((p: { id: string }) => p.id));
-    }
-  }, [role]);
 
   const handleEdit = () => {
     editForm.setFieldsValue({ name: role?.name ?? "", description: role?.description ?? "" });
@@ -87,6 +86,7 @@ export default function RoleDetailPage() {
     try {
       await savePermissions({ permissionIds: checkedIds });
       message.success("Permissions updated");
+      setDraftCheckedIds(null);
     } catch {
       message.error("Failed to update permissions");
     }
@@ -100,8 +100,9 @@ export default function RoleDetailPage() {
       const groupChecked = groupPermIds.filter((id: string) => checkedIds.includes(id));
 
       const handleGroupChange = (vals: string[]) => {
-        setCheckedIds((prev) => {
-          const without = prev.filter((id) => !groupPermIds.includes(id));
+        setDraftCheckedIds((prev) => {
+          const current = prev ?? serverCheckedIds;
+          const without = current.filter((id) => !groupPermIds.includes(id));
           return [...without, ...vals];
         });
       };

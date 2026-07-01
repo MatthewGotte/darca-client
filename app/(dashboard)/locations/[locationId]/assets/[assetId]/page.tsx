@@ -15,7 +15,6 @@ import {
   Select,
   Skeleton,
   Space,
-  Switch,
   Tabs,
   Tag,
   Upload,
@@ -517,7 +516,7 @@ function CustomFieldsTab({
     }
   };
 
-  const renderField = (dataType: string, name: string) => {
+  const renderField = (dataType: string) => {
     switch (dataType) {
       case "NUMBER":
         return <InputNumber style={{ width: "100%" }} />;
@@ -576,7 +575,7 @@ function CustomFieldsTab({
               name={f.customFieldId}
               label={f.label}
             >
-              {renderField(f.dataType, f.customFieldId)}
+              {renderField(f.dataType)}
             </Form.Item>
           ))}
         </Form>

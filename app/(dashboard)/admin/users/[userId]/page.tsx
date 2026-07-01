@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
@@ -248,13 +248,9 @@ function OrgRolesTab({
   const { data: userRoles } = useUserOrganisationRoles(userId);
   const { trigger: updateRoles, isMutating } = useUpdateUserOrganisationRoles(userId);
 
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (userRoles?.roleIds) {
-      setSelectedIds(userRoles.roleIds);
-    }
-  }, [userRoles]);
+  const serverRoleIds = useMemo(() => userRoles?.roleIds ?? [], [userRoles]);
+  const [draftRoleIds, setDraftRoleIds] = useState<string[] | null>(null);
+  const selectedIds = draftRoleIds ?? serverRoleIds;
 
   const roleOptions = (roles ?? []).map((r) => ({ value: r.id, label: r.name }));
 
@@ -262,6 +258,7 @@ function OrgRolesTab({
     try {
       await updateRoles({ roleIds: selectedIds });
       message.success("Organisation roles updated");
+      setDraftRoleIds(null);
     } catch {
       message.error("Failed to update organisation roles");
     }
@@ -276,7 +273,7 @@ function OrgRolesTab({
           placeholder="Select roles"
           options={roleOptions}
           value={selectedIds}
-          onChange={setSelectedIds}
+          onChange={setDraftRoleIds}
         />
         <Button type="primary" onClick={handleSave} loading={isMutating}>
           Save
@@ -303,15 +300,9 @@ function LocationRolesTab({
     selectedLocationId ?? ""
   );
 
-  const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (locationRoles?.roleIds) {
-      setSelectedRoleIds(locationRoles.roleIds);
-    } else {
-      setSelectedRoleIds([]);
-    }
-  }, [locationRoles]);
+  const serverRoleIds = useMemo(() => locationRoles?.roleIds ?? [], [locationRoles]);
+  const [draftRoleIds, setDraftRoleIds] = useState<string[] | null>(null);
+  const selectedRoleIds = draftRoleIds ?? serverRoleIds;
 
   const locationOptions = (locations ?? []).map((l) => ({ value: l.id, label: l.name }));
   const roleOptions = (roles ?? []).map((r) => ({ value: r.id, label: r.name }));
@@ -321,6 +312,7 @@ function LocationRolesTab({
     try {
       await updateLocationRoles({ roleIds: selectedRoleIds });
       message.success("Location roles updated");
+      setDraftRoleIds(null);
     } catch {
       message.error("Failed to update location roles");
     }
@@ -334,7 +326,10 @@ function LocationRolesTab({
           placeholder="Select a location"
           options={locationOptions}
           value={selectedLocationId}
-          onChange={(val) => setSelectedLocationId(val)}
+          onChange={(val) => {
+            setSelectedLocationId(val);
+            setDraftRoleIds(null);
+          }}
         />
         {selectedLocationId && (
           <>
@@ -344,7 +339,7 @@ function LocationRolesTab({
               placeholder="Select roles"
               options={roleOptions}
               value={selectedRoleIds}
-              onChange={setSelectedRoleIds}
+              onChange={setDraftRoleIds}
             />
             <Button
               type="primary"
