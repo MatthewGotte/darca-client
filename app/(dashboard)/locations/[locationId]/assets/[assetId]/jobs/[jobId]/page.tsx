@@ -14,13 +14,13 @@ import {
   Skeleton,
   Space,
   Tabs,
-  Typography,
-  message,
-} from "antd";
+  Typography } from "antd";
 import type { TableColumnsType } from "antd";
 import dayjs from "dayjs";
 
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import JobLifecycleStepper from "@/components/jobs/job-lifecycle-stepper";
+import { useAppMessage } from "@/hooks/use-app-message";
 import DataTable from "@/components/data-table";
 import Can from "@/components/can";
 import ConfirmDelete from "@/components/confirm-delete";
@@ -28,8 +28,7 @@ import RequirePermission from "@/components/require-permission";
 import {
   StatusTag,
   PriorityTag,
-  ComplianceResultTag,
-} from "@/components/status-tag";
+  ComplianceResultTag } from "@/components/status-tag";
 
 import {
   useJob,
@@ -39,8 +38,7 @@ import {
   useCompleteJob,
   useArchiveJob,
   useAssignJobUser,
-  useUnassignJobUser,
-} from "@/hooks/data/use-jobs";
+  useUnassignJobUser } from "@/hooks/data/use-jobs";
 import { useAsset } from "@/hooks/data/use-assets";
 import { useOrganisationLocation } from "@/hooks/data/use-locations";
 import { useOrganisationUsers } from "@/hooks/data/use-users";
@@ -49,14 +47,12 @@ import { PERMISSIONS } from "@/lib/auth/permissions";
 import type {
   JobHistoryResponse,
   UpdateJobRequest,
-  CompleteJobRequest,
-} from "@/lib/api/types";
+  CompleteJobRequest } from "@/lib/api/types";
 
 // ─── Details Tab ──────────────────────────────────────────────────────────────
 
 function DetailsTab({
-  job,
-}: {
+  job }: {
   job: NonNullable<ReturnType<typeof useJob>["data"]>;
 }) {
   return (
@@ -100,11 +96,11 @@ function DetailsTab({
 
 function AssignmentsTab({
   job,
-  jobId,
-}: {
+  jobId }: {
   job: NonNullable<ReturnType<typeof useJob>["data"]>;
   jobId: string;
 }) {
+  const { message } = useAppMessage();
   const orgId = useOrgId();
   const [assignOpen, setAssignOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<string | null>(null);
@@ -144,8 +140,7 @@ function AssignmentsTab({
       title: "Assigned At",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (v: string) => dayjs(v).format("YYYY-MM-DD HH:mm"),
-    },
+      render: (v: string) => dayjs(v).format("YYYY-MM-DD HH:mm") },
     {
       title: "Actions",
       key: "actions",
@@ -159,8 +154,7 @@ function AssignmentsTab({
             Remove
           </Button>
         </Can>
-      ),
-    },
+      ) },
   ];
 
   return (
@@ -231,32 +225,27 @@ function HistoryTab({ jobId }: { jobId: string }) {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (v?: string) => <StatusTag status={v} />,
-    },
+      render: (v?: string) => <StatusTag status={v} /> },
     {
       title: "Compliance Result",
       dataIndex: "complianceResult",
       key: "complianceResult",
-      render: (v?: string) => <ComplianceResultTag result={v} />,
-    },
+      render: (v?: string) => <ComplianceResultTag result={v} /> },
     {
       title: "Performed By",
       dataIndex: "performedByUserName",
       key: "performedByUserName",
-      render: (v?: string) => v ?? "—",
-    },
+      render: (v?: string) => v ?? "—" },
     {
       title: "Notes",
       dataIndex: "notes",
       key: "notes",
-      render: (v?: string) => v ?? "—",
-    },
+      render: (v?: string) => v ?? "—" },
     {
       title: "Date",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (v: string) => dayjs(v).format("YYYY-MM-DD HH:mm"),
-    },
+      render: (v: string) => dayjs(v).format("YYYY-MM-DD HH:mm") },
   ];
 
   return (
@@ -274,6 +263,7 @@ function HistoryTab({ jobId }: { jobId: string }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function JobDetailPage() {
+  const { message } = useAppMessage();
   const { locationId, assetId, jobId } = useParams<{
     locationId: string;
     assetId: string;
@@ -316,8 +306,7 @@ export default function JobDetailPage() {
         title: values.title,
         description: values.description,
         priority: values.priority,
-        dueDate: dayjs(values.dueDate as unknown as string).toISOString(),
-      });
+        dueDate: dayjs(values.dueDate as unknown as string).toISOString() });
       message.success("Job updated");
       setEditOpen(false);
     } catch {
@@ -369,12 +358,10 @@ export default function JobDetailPage() {
     { label: "Locations", href: "/locations" },
     {
       label: location?.name ?? locationId,
-      href: `/locations/${locationId}`,
-    },
+      href: `/locations/${locationId}` },
     {
       label: asset?.name ?? assetId,
-      href: `/locations/${locationId}/assets/${assetId}`,
-    },
+      href: `/locations/${locationId}/assets/${assetId}` },
     { label: "Jobs" },
     { label: job.title ?? "Job" },
   ];
@@ -414,8 +401,7 @@ export default function JobDetailPage() {
                 ...job,
                 dueDate: job.dueDate
                   ? (dayjs(job.dueDate) as unknown as string)
-                  : undefined,
-              });
+                  : undefined });
               setEditOpen(true);
             }}
           >
@@ -430,35 +416,31 @@ export default function JobDetailPage() {
     {
       key: "details",
       label: "Details",
-      children: <DetailsTab job={job} />,
-    },
+      children: <DetailsTab job={job} /> },
     {
       key: "assignments",
       label: "Assignments",
-      children: <AssignmentsTab job={job} jobId={jobId} />,
-    },
+      children: <AssignmentsTab job={job} jobId={jobId} /> },
     {
       key: "history",
       label: "History",
-      children: <HistoryTab jobId={jobId} />,
-    },
+      children: <HistoryTab jobId={jobId} /> },
   ];
 
   return (
     <RequirePermission permission={PERMISSIONS.JOB_READ}>
-      <div>
-        <PageHeader
-          title={
-            <Space>
-              {job.title}
-              <StatusTag status={job.status} />
-              <PriorityTag priority={job.priority} />
-            </Space>
-          }
-          breadcrumbs={breadcrumbs}
-          actions={lifecycleActions}
-        />
-
+      <DashboardPageShell
+        title={
+          <Space>
+            {job.title}
+            <StatusTag status={job.status} />
+            <PriorityTag priority={job.priority} />
+          </Space>
+        }
+        breadcrumbs={breadcrumbs}
+        actions={lifecycleActions}
+      >
+        <JobLifecycleStepper status={job.status} />
         <Tabs items={tabItems} />
 
         {/* Edit Job Drawer */}
@@ -466,7 +448,7 @@ export default function JobDetailPage() {
           title="Edit Job"
           open={editOpen}
           onClose={() => setEditOpen(false)}
-          width={480}
+          size={480}
           destroyOnHidden
           footer={
             <Space>
@@ -568,7 +550,7 @@ export default function JobDetailPage() {
           description="This will archive the completed job."
           confirmText="Archive"
         />
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

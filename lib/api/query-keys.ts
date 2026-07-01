@@ -2,6 +2,12 @@ export const queryKeys = {
   me: () => ["me"] as const,
 
   organisation: (id: string) => ["organisation", id] as const,
+  organisationAssets: (orgId: string, params?: object) =>
+    ["organisation", orgId, "assets", params ?? {}] as const,
+  organisationJobs: (orgId: string, params?: object) =>
+    ["organisation", orgId, "jobs", params ?? {}] as const,
+  organisationComplianceSchedules: (orgId: string, params?: object) =>
+    ["organisation", orgId, "compliance-schedules", params ?? {}] as const,
 
   users: (orgId: string, params?: object) =>
     ["organisation", orgId, "users", params ?? {}] as const,

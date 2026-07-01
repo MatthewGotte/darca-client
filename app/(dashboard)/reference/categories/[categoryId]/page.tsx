@@ -14,11 +14,10 @@ import {
   Skeleton,
   Space,
   Table,
-  Tag,
-  message,
-} from "antd";
+  Tag } from "antd";
 import type { TableColumnsType } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import ConfirmDelete from "@/components/confirm-delete";
 import Can from "@/components/can";
 import RequirePermission from "@/components/require-permission";
@@ -26,8 +25,7 @@ import {
   useCategory,
   useUpdateCategory,
   useUpdateCategoryCustomFields,
-  useDeleteCategory,
-} from "@/hooks/data/use-categories";
+  useDeleteCategory } from "@/hooks/data/use-categories";
 import { useCustomFields } from "@/hooks/data/use-custom-fields";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateCategoryRequest } from "@/lib/api/types";
@@ -36,6 +34,7 @@ import type { CustomFieldResponse } from "@/lib/api/schema-types";
 type CustomFieldRow = CustomFieldResponse;
 
 export default function CategoryDetailPage() {
+  const { message } = useAppMessage();
   const { categoryId } = useParams<{ categoryId: string }>();
   const router = useRouter();
 
@@ -108,8 +107,7 @@ export default function CategoryDetailPage() {
       title: "Required",
       dataIndex: "required",
       key: "required",
-      render: (v) => (v ? <Tag color="red">Yes</Tag> : <Tag>No</Tag>),
-    },
+      render: (v) => (v ? <Tag color="red">Yes</Tag> : <Tag>No</Tag>) },
   ];
 
   if (isLoading) {
@@ -118,8 +116,7 @@ export default function CategoryDetailPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.CATEGORY_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title={category?.name ?? "Category"}
           subtitle={category?.description}
           breadcrumbs={[
@@ -137,9 +134,8 @@ export default function CategoryDetailPage() {
               </Space>
             </Can>
           }
-        />
-
-        <Card title="Details" style={{ marginBottom: 24 }}>
+        >
+<Card title="Details" style={{ marginBottom: 24 }}>
           <Descriptions column={1} bordered>
             <Descriptions.Item label="Name">{category?.name ?? "—"}</Descriptions.Item>
             <Descriptions.Item label="Description">{category?.description ?? "—"}</Descriptions.Item>
@@ -193,7 +189,7 @@ export default function CategoryDetailPage() {
           title="Manage Custom Fields"
           open={fieldsDrawerOpen}
           onClose={() => setFieldsDrawerOpen(false)}
-          width={480}
+          size={480}
           footer={
             <Space style={{ display: "flex", justifyContent: "flex-end" }}>
               <Button onClick={() => setFieldsDrawerOpen(false)}>Cancel</Button>
@@ -211,8 +207,7 @@ export default function CategoryDetailPage() {
             onChange={setSelectedFieldIds}
             options={(allCustomFields ?? []).map((f) => ({
               label: f.label,
-              value: f.id,
-            }))}
+              value: f.id }))}
             optionFilterProp="label"
           />
         </Drawer>
@@ -226,7 +221,7 @@ export default function CategoryDetailPage() {
           description="This action cannot be undone. Are you sure you want to delete this category?"
           confirmText="Delete"
         />
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

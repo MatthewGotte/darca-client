@@ -1,18 +1,35 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { LogoutOutlined, MenuOutlined } from "@ant-design/icons";
-import { Button, Drawer, Grid, Layout, Menu, Tooltip } from "antd";
-import Link from "@/components/link";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  LogoutOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  SafetyCertificateOutlined,
+  SettingOutlined,
+} from "@ant-design/icons";
+import { Button, Drawer, Grid, Layout, Menu, Tooltip, Typography } from "antd";
 import { useAuth } from "@/hooks/use-auth";
 import { usePermission } from "@/hooks/use-permission";
-import { navItems } from "./nav-items";
+import type { PermissionCode } from "@/lib/auth/permissions";
+import { shellTheme } from "@/lib/shell-theme";
+import { getSelectedNavKey, navGroups, type NavItem } from "./nav-items";
 
 const { Header, Sider, Content } = Layout;
+const { Text } = Typography;
 const { useBreakpoint } = Grid;
-const DRAWER_WIDTH = 240;
+const SIDENAV_COLLAPSED_KEY = "sidenav-collapsed";
+
+function filterNavItem(
+  item: NavItem,
+  has: (permission: PermissionCode) => boolean,
+  hasAny: (permissions: PermissionCode[]) => boolean
+) {
+  if (item.permission) return has(item.permission);
+  if (item.any) return hasAny(item.any);
+  return true;
+}
 
 export default function DashboardShell({
   children,
@@ -20,102 +37,202 @@ export default function DashboardShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { signOut } = useAuth();
+  const router = useRouter();
+  const { user, roles, signOut } = useAuth();
   const { has, hasAny } = usePermission();
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(SIDENAV_COLLAPSED_KEY) === "true";
+  });
   const [mobileOpen, setMobileOpen] = useState(false);
   const screens = useBreakpoint();
   const isMobile = !screens.md;
 
-  const visibleNavItems = navItems.filter(({ permission, any }) => {
-    if (permission) return has(permission);
-    if (any) return hasAny(any);
-    return true;
-  });
+  useEffect(() => {
+    localStorage.setItem(SIDENAV_COLLAPSED_KEY, String(collapsed));
+  }, [collapsed]);
 
-  const selectedKey =
-    visibleNavItems.find(({ href }) =>
-      href === "/" ? pathname === "/" : pathname.startsWith(href)
-    )?.href ?? "/";
+  const menuItems = useMemo(() => {
+    return navGroups
+      .map((group) => {
+        const children = group.items
+          .filter((item) => filterNavItem(item, has, hasAny))
+          .map((item) => ({
+            key: item.key,
+            icon: <item.icon />,
+            label: item.label,
+            onClick: () => {
+              router.push(item.href);
+              setMobileOpen(false);
+            },
+          }));
 
-  const menuItems = visibleNavItems.map(({ label, href, icon: Icon }) => ({
-    key: href,
-    icon: <Icon />,
-    label: <Link href={href}>{label}</Link>,
-  }));
+        if (children.length === 0) return null;
+
+        return {
+          type: "group" as const,
+          key: group.key,
+          label: group.label,
+          children,
+        };
+      })
+      .filter((group) => group !== null);
+  }, [has, hasAny, router]);
+
+  const selectedKey = getSelectedNavKey(pathname);
+  const onSettings = pathname.startsWith("/settings");
+
+  const rolesTooltip =
+    roles.length > 0 ? (
+      <div style={{ whiteSpace: "nowrap" }}>
+        <div style={{ fontWeight: 600, marginBottom: 6 }}>Assigned roles</div>
+        {roles.map((role) => (
+          <div key={role}>{role}</div>
+        ))}
+      </div>
+    ) : null;
 
   const navMenu = (
     <Menu
       mode="inline"
-      selectedKeys={[selectedKey]}
+      selectedKeys={selectedKey ? [selectedKey] : []}
       items={menuItems}
-      onClick={() => setMobileOpen(false)}
-      style={{ borderInlineEnd: 0 }}
+      theme="dark"
+      style={{
+        background: "transparent",
+        border: "none",
+        color: shellTheme.menuText,
+      }}
     />
   );
 
+  const siderContent = (
+    <>
+      {!isMobile ? (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: collapsed ? "center" : "flex-end",
+            padding: "12px 12px 4px",
+          }}
+        >
+          <Button
+            type="text"
+            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+            onClick={() => setCollapsed(!collapsed)}
+            style={{ color: shellTheme.mutedText }}
+            size="small"
+          />
+        </div>
+      ) : null}
+      {navMenu}
+    </>
+  );
+
   return (
-    <Layout style={{ flex: 1, minHeight: "100vh" }}>
+    <Layout style={{ minHeight: "100vh" }}>
       <Header
         style={{
-          position: "fixed",
-          top: 0,
-          zIndex: 100,
-          width: "100%",
+          background: shellTheme.headerBg,
           display: "flex",
           alignItems: "center",
-          gap: 8,
-          paddingInline: 16,
-          background: "#fff",
-          borderBottom: "1px solid #f0f0f0",
+          justifyContent: "space-between",
+          padding: isMobile ? "0 16px" : "0 24px",
+          position: "sticky",
+          top: 0,
+          zIndex: 100,
+          height: shellTheme.headerHeight,
         }}
       >
-        {isMobile ? (
-          <Button
-            type="text"
-            icon={<MenuOutlined />}
-            aria-label="Open navigation"
-            onClick={() => setMobileOpen((open) => !open)}
-          />
-        ) : null}
-
-        <Link href="/" aria-label="DARCA Asset Management home">
-          <Image
-            src="/darca-logo.jpeg"
-            alt="DARCA Asset Management"
-            width={132}
-            height={36}
-            priority
-            style={{ height: 36, width: "auto" }}
-          />
-        </Link>
-
-        <div style={{ flex: 1 }} />
-
-        <Tooltip title="Sign out">
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            aria-label="Sign out"
-            onClick={() => void signOut()}
-          />
-        </Tooltip>
-      </Header>
-
-      <Layout style={{ marginTop: 64 }}>
-        {!isMobile ? (
-          <Sider
-            width={DRAWER_WIDTH}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+          {isMobile ? (
+            <Button
+              type="text"
+              icon={<MenuUnfoldOutlined />}
+              aria-label="Open navigation"
+              onClick={() => setMobileOpen(true)}
+              style={{ color: shellTheme.mutedText }}
+              size="small"
+            />
+          ) : null}
+          <div
             style={{
-              position: "fixed",
-              left: 0,
-              top: 64,
-              bottom: 0,
-              background: "#fff",
-              borderRight: "1px solid #f0f0f0",
-              overflow: "auto",
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              background: shellTheme.brandAccent,
+            }}
+          />
+          <Text
+            strong
+            style={{
+              color: "#ffffff",
+              fontSize: 16,
+              letterSpacing: "0.5px",
             }}
           >
-            {navMenu}
+            DARCA
+          </Text>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          {user?.email ? (
+            <Text style={{ color: shellTheme.mutedText, fontSize: 13 }}>
+              {user.email}
+            </Text>
+          ) : null}
+          {rolesTooltip ? (
+            <Tooltip title={rolesTooltip} styles={{ root: { maxWidth: "none" } }}>
+              <Button
+                type="text"
+                aria-label="Assigned roles"
+                icon={<SafetyCertificateOutlined />}
+                style={{ color: shellTheme.mutedText }}
+                size="small"
+              />
+            </Tooltip>
+          ) : null}
+          <Tooltip title="Settings">
+            <Button
+              type="text"
+              aria-label="Settings"
+              icon={<SettingOutlined />}
+              style={{ color: onSettings ? "#ffffff" : shellTheme.mutedText }}
+              onClick={() => router.push("/settings")}
+              size="small"
+            />
+          </Tooltip>
+          <Tooltip title="Sign out">
+            <Button
+              type="text"
+              aria-label="Sign out"
+              icon={<LogoutOutlined />}
+              style={{ color: shellTheme.mutedText }}
+              onClick={() => void signOut()}
+              size="small"
+            />
+          </Tooltip>
+        </div>
+      </Header>
+
+      <Layout>
+        {!isMobile ? (
+          <Sider
+            collapsible
+            collapsed={collapsed}
+            trigger={null}
+            width={shellTheme.siderWidth}
+            collapsedWidth={shellTheme.siderCollapsedWidth}
+            style={{
+              background: shellTheme.siderBg,
+              borderRight: `1px solid ${shellTheme.border}`,
+              height: `calc(100vh - ${shellTheme.headerHeight}px)`,
+              position: "sticky",
+              top: shellTheme.headerHeight,
+              overflowY: "auto",
+            }}
+          >
+            {siderContent}
           </Sider>
         ) : (
           <Drawer
@@ -123,8 +240,11 @@ export default function DashboardShell({
             placement="left"
             open={mobileOpen}
             onClose={() => setMobileOpen(false)}
-            width={DRAWER_WIDTH}
-            styles={{ body: { padding: 0 } }}
+            size={shellTheme.siderWidth}
+            styles={{
+              header: { background: shellTheme.siderBg, color: "#fff" },
+              body: { padding: 0, background: shellTheme.siderBg },
+            }}
           >
             {navMenu}
           </Drawer>
@@ -132,10 +252,9 @@ export default function DashboardShell({
 
         <Content
           style={{
-            marginLeft: isMobile ? 0 : DRAWER_WIDTH,
-            padding: 24,
-            minHeight: "calc(100vh - 64px)",
-            background: "#f5f5f5",
+            background: shellTheme.contentBg,
+            height: `calc(100vh - ${shellTheme.headerHeight}px)`,
+            overflowY: "auto",
           }}
         >
           {children}

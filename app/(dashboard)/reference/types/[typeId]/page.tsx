@@ -10,10 +10,9 @@ import {
   Input,
   Modal,
   Skeleton,
-  Space,
-  message,
-} from "antd";
-import PageHeader from "@/components/page-header";
+  Space } from "antd";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import ConfirmDelete from "@/components/confirm-delete";
 import Can from "@/components/can";
 import RequirePermission from "@/components/require-permission";
@@ -22,6 +21,7 @@ import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateTypeRequest } from "@/lib/api/types";
 
 export default function TypeDetailPage() {
+  const { message } = useAppMessage();
   const { typeId } = useParams<{ typeId: string }>();
   const router = useRouter();
 
@@ -68,8 +68,7 @@ export default function TypeDetailPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.TYPE_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title={type?.name ?? "Type"}
           subtitle={type?.description}
           breadcrumbs={[
@@ -86,9 +85,8 @@ export default function TypeDetailPage() {
               </Space>
             </Can>
           }
-        />
-
-        <Card title="Details">
+        >
+<Card title="Details">
           <Descriptions column={1} bordered>
             <Descriptions.Item label="Name">{type?.name ?? "—"}</Descriptions.Item>
             <Descriptions.Item label="Description">{type?.description ?? "—"}</Descriptions.Item>
@@ -130,7 +128,7 @@ export default function TypeDetailPage() {
           description="This action cannot be undone. Are you sure you want to delete this type?"
           confirmText="Delete"
         />
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

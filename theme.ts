@@ -2,11 +2,11 @@ import type { ThemeConfig } from "antd";
 
 const theme: ThemeConfig = {
   token: {
-    colorPrimary: "#E8772E",
-    colorLink: "#E8772E",
-    colorTextHeading: "#2B3A4E",
+    colorPrimary: "#1677ff",
+    colorLink: "#1677ff",
+    colorTextHeading: "#0a1628",
     fontFamily: "var(--font-roboto)",
-    borderRadius: 8,
+    borderRadius: 6,
   },
 };
 

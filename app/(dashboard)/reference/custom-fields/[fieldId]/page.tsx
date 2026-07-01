@@ -13,18 +13,16 @@ import {
   Select,
   Skeleton,
   Space,
-  Tag,
-  message,
-} from "antd";
-import PageHeader from "@/components/page-header";
+  Tag } from "antd";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import ConfirmDelete from "@/components/confirm-delete";
 import Can from "@/components/can";
 import RequirePermission from "@/components/require-permission";
 import {
   useCustomField,
   useUpdateCustomField,
-  useDeleteCustomField,
-} from "@/hooks/data/use-custom-fields";
+  useDeleteCustomField } from "@/hooks/data/use-custom-fields";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateCustomFieldRequest } from "@/lib/api/types";
 
@@ -41,10 +39,10 @@ const DATA_TYPE_COLORS: Record<string, string> = {
   NUMBER: "green",
   DATE: "orange",
   BOOLEAN: "purple",
-  SELECT: "cyan",
-};
+  SELECT: "cyan" };
 
 export default function CustomFieldDetailPage() {
+  const { message } = useAppMessage();
   const { fieldId } = useParams<{ fieldId: string }>();
   const router = useRouter();
 
@@ -61,8 +59,7 @@ export default function CustomFieldDetailPage() {
       editForm.setFieldsValue({
         label: field.label,
         dataType: field.dataType,
-        required: field.required,
-      });
+        required: field.required });
     }
     setEditModalOpen(true);
   };
@@ -95,8 +92,7 @@ export default function CustomFieldDetailPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.CUSTOM_FIELD_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title={field?.label ?? "Custom Field"}
           breadcrumbs={[
             { label: "Home", href: "/" },
@@ -112,9 +108,8 @@ export default function CustomFieldDetailPage() {
               </Space>
             </Can>
           }
-        />
-
-        <Card title="Details">
+        >
+<Card title="Details">
           <Descriptions column={1} bordered>
             <Descriptions.Item label="Label">{field?.label ?? "—"}</Descriptions.Item>
             <Descriptions.Item label="Data Type">
@@ -178,7 +173,7 @@ export default function CustomFieldDetailPage() {
           description="This action cannot be undone. Are you sure you want to delete this custom field?"
           confirmText="Delete"
         />
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

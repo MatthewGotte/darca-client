@@ -95,7 +95,7 @@ export default function ResetPasswordForm() {
         </Title>
         <Alert
           type="error"
-          message="This reset link is invalid or has expired."
+          title="This reset link is invalid or has expired."
           showIcon
         />
         <Link href="/forgot-password">
@@ -123,7 +123,7 @@ export default function ResetPasswordForm() {
         </Paragraph>
       </div>
 
-      {error ? <Alert type="error" message={error} showIcon /> : null}
+      {error ? <Alert type="error" title={error} showIcon /> : null}
 
       <Form layout="vertical" onFinish={handleSubmit}>
         <Form.Item label="New password" required>

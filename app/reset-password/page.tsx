@@ -1,37 +1,31 @@
-import Image from "next/image";
+"use client";
+
 import { Suspense } from "react";
-import { Card, Flex, Spin } from "antd";
+import { Card, Flex, Spin, Typography } from "antd";
 import ResetPasswordForm from "./reset-password-form";
+
+const { Title, Text } = Typography;
 
 export default function ResetPasswordPage() {
   return (
-    <main
-      style={{
-        flex: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#f5f5f5",
-        padding: "48px 16px",
-      }}
+    <Flex
+      align="center"
+      justify="center"
+      style={{ minHeight: "100vh", background: "#f0f2f5" }}
     >
-      <Flex vertical align="center" style={{ width: "100%", maxWidth: 480 }}>
-        <Flex justify="center" style={{ marginBottom: 32 }}>
-          <Image
-            src="/darca-logo.jpeg"
-            alt="DARCA Asset Management"
-            width={360}
-            height={98}
-            priority
-            style={{ height: 98, width: "auto" }}
-          />
-        </Flex>
-        <Card style={{ width: "100%" }}>
+      <Card style={{ width: 400 }}>
+        <Flex vertical align="center" gap={24}>
+          <Flex vertical align="center" gap={8}>
+            <Title level={3} style={{ margin: 0 }}>
+              DARCA
+            </Title>
+            <Text type="secondary">Choose a new password</Text>
+          </Flex>
           <Suspense fallback={<Spin />}>
             <ResetPasswordForm />
           </Suspense>
-        </Card>
-      </Flex>
-    </main>
+        </Flex>
+      </Card>
+    </Flex>
   );
 }

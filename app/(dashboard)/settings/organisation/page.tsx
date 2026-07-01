@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Card, Col, Descriptions, Form, Input, Modal, Row, Skeleton, message } from "antd";
-import PageHeader from "@/components/page-header";
+import { Button, Card, Col, Descriptions, Form, Input, Modal, Row, Skeleton } from "antd";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import RequirePermission from "@/components/require-permission";
 import Can from "@/components/can";
 import { useOrgId } from "@/hooks/use-org-id";
@@ -11,6 +12,7 @@ import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateOrganisationRequest } from "@/lib/api/types";
 
 export default function OrganisationSettingsPage() {
+  const { message } = useAppMessage();
   const orgId = useOrgId();
   const { data: org, isLoading } = useOrganisation(orgId);
   const { trigger: updateOrg, isMutating } = useUpdateOrganisation(orgId ?? "");
@@ -35,8 +37,7 @@ export default function OrganisationSettingsPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.ORGANISATION_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title="Organisation Settings"
           breadcrumbs={[
             { label: "Home", href: "/" },
@@ -50,9 +51,8 @@ export default function OrganisationSettingsPage() {
               </Button>
             </Can>
           }
-        />
-
-        {isLoading ? (
+        >
+{isLoading ? (
           <Skeleton active />
         ) : (
           <Row gutter={[24, 24]}>
@@ -90,7 +90,7 @@ export default function OrganisationSettingsPage() {
             </Form.Item>
           </Form>
         </Modal>
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

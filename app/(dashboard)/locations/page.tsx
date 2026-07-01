@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Form, Input, Modal, Tag, message } from "antd";
+import { Button, Form, Input, Modal, Tag } from "antd";
 import type { TableColumnsType } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
 import DataTable from "@/components/data-table";
 import Can from "@/components/can";
 import RequirePermission from "@/components/require-permission";
@@ -13,10 +13,12 @@ import {
   useCreateOrganisationLocation,
 } from "@/hooks/data/use-locations";
 import { useOrgId } from "@/hooks/use-org-id";
+import { useAppMessage } from "@/hooks/use-app-message";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { CreateLocationRequest, LocationResponse } from "@/lib/api/types";
 
 export default function LocationsPage() {
+  const { message } = useAppMessage();
   const orgId = useOrgId();
   const { data, isLoading, error } = useOrganisationLocations(orgId);
   const { trigger: createLocation, isMutating } = useCreateOrganisationLocation(orgId ?? "");
@@ -73,23 +75,17 @@ export default function LocationsPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.LOCATION_READ}>
-      <div>
-        <PageHeader
-          title="Locations"
-          subtitle="Manage your organisation's locations"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Locations" },
-          ]}
-          actions={
-            <Can permission={PERMISSIONS.LOCATION_CREATE}>
-              <Button type="primary" onClick={() => setModalOpen(true)}>
-                New Location
-              </Button>
-            </Can>
-          }
-        />
-
+      <DashboardPageShell
+        title="Locations"
+        subtitle="Manage your organisation's locations"
+        actions={
+          <Can permission={PERMISSIONS.LOCATION_CREATE}>
+            <Button type="primary" onClick={() => setModalOpen(true)}>
+              New Location
+            </Button>
+          </Can>
+        }
+      >
         <DataTable<LocationResponse>
           isLoading={isLoading}
           error={error}
@@ -125,7 +121,7 @@ export default function LocationsPage() {
             </Form.Item>
           </Form>
         </Modal>
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

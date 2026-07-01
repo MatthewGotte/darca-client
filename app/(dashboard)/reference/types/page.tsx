@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Form, Input, Modal, message } from "antd";
+import { Button, Form, Input, Modal } from "antd";
 import type { TableColumnsType } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
 import DataTable from "@/components/data-table";
 import Can from "@/components/can";
 import RequirePermission from "@/components/require-permission";
 import { useTypes, useCreateType } from "@/hooks/data/use-types";
+import { useAppMessage } from "@/hooks/use-app-message";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { CreateTypeRequest } from "@/lib/api/types";
 
@@ -20,6 +21,7 @@ type TypeRow = {
 };
 
 export default function TypesPage() {
+  const { message } = useAppMessage();
   const router = useRouter();
   const { data, isLoading, error } = useTypes();
   const { trigger: createType, isMutating } = useCreateType();
@@ -53,24 +55,17 @@ export default function TypesPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.TYPE_READ}>
-      <div>
-        <PageHeader
-          title="Types"
-          subtitle="Manage asset types"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Reference" },
-            { label: "Types" },
-          ]}
-          actions={
-            <Can permission={PERMISSIONS.TYPE_MANAGE}>
-              <Button type="primary" onClick={() => setModalOpen(true)}>
-                New Type
-              </Button>
-            </Can>
-          }
-        />
-
+      <DashboardPageShell
+        title="Types"
+        subtitle="Manage asset types"
+        actions={
+          <Can permission={PERMISSIONS.TYPE_MANAGE}>
+            <Button type="primary" onClick={() => setModalOpen(true)}>
+              New Type
+            </Button>
+          </Can>
+        }
+      >
         <DataTable<TypeRow>
           isLoading={isLoading}
           error={error}
@@ -107,7 +102,7 @@ export default function TypesPage() {
             </Form.Item>
           </Form>
         </Modal>
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

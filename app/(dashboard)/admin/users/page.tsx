@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Form, Input, Modal, Space, Switch, Tag, message } from "antd";
+import { Button, Form, Input, Modal, Space, Switch, Tag } from "antd";
 import type { TableColumnsType } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
 import DataTable from "@/components/data-table";
 import RequirePermission from "@/components/require-permission";
 import Can from "@/components/can";
@@ -13,6 +13,7 @@ import {
   useOrganisationUsers,
   useCreateOrganisationUser,
 } from "@/hooks/data/use-users";
+import { useAppMessage } from "@/hooks/use-app-message";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { CreateUserRequest } from "@/lib/api/types";
 import type { UserResponse } from "@/lib/api/schema-types";
@@ -20,6 +21,7 @@ import type { UserResponse } from "@/lib/api/schema-types";
 type UserRow = UserResponse;
 
 export default function UsersPage() {
+  const { message } = useAppMessage();
   const orgId = useOrgId();
   const [includeDecommissioned, setIncludeDecommissioned] = useState(false);
   const [createModalOpen, setCreateModalOpen] = useState(false);
@@ -79,32 +81,25 @@ export default function UsersPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.USER_READ}>
-      <div>
-        <PageHeader
-          title="Users"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Admin", href: "/admin" },
-            { label: "Users" },
-          ]}
-          actions={
+      <DashboardPageShell
+        title="Users"
+        actions={
+          <Space>
             <Space>
-              <Space>
-                <span>Include decommissioned</span>
-                <Switch
-                  checked={includeDecommissioned}
-                  onChange={setIncludeDecommissioned}
-                />
-              </Space>
-              <Can permission={PERMISSIONS.USER_CREATE}>
-                <Button type="primary" onClick={() => setCreateModalOpen(true)}>
-                  New User
-                </Button>
-              </Can>
+              <span>Include decommissioned</span>
+              <Switch
+                checked={includeDecommissioned}
+                onChange={setIncludeDecommissioned}
+              />
             </Space>
-          }
-        />
-
+            <Can permission={PERMISSIONS.USER_CREATE}>
+              <Button type="primary" onClick={() => setCreateModalOpen(true)}>
+                New User
+              </Button>
+            </Can>
+          </Space>
+        }
+      >
         <DataTable<UserRow>
           dataSource={users}
           columns={columns}
@@ -147,7 +142,7 @@ export default function UsersPage() {
             </Form.Item>
           </Form>
         </Modal>
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

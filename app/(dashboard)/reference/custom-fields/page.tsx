@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Checkbox, Form, Input, Modal, Select, Tag, message } from "antd";
+import { Button, Checkbox, Form, Input, Modal, Select, Tag } from "antd";
 import type { TableColumnsType } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
 import DataTable from "@/components/data-table";
 import Can from "@/components/can";
 import RequirePermission from "@/components/require-permission";
 import { useCustomFields, useCreateCustomField } from "@/hooks/data/use-custom-fields";
+import { useAppMessage } from "@/hooks/use-app-message";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { CreateCustomFieldRequest } from "@/lib/api/types";
 
@@ -36,6 +37,7 @@ type CustomFieldRow = {
 };
 
 export default function CustomFieldsPage() {
+  const { message } = useAppMessage();
   const { data, isLoading, error } = useCustomFields();
   const { trigger: createCustomField, isMutating } = useCreateCustomField();
   const [modalOpen, setModalOpen] = useState(false);
@@ -79,24 +81,17 @@ export default function CustomFieldsPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.CUSTOM_FIELD_READ}>
-      <div>
-        <PageHeader
-          title="Custom Fields"
-          subtitle="Manage custom fields for assets"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Reference" },
-            { label: "Custom Fields" },
-          ]}
-          actions={
-            <Can permission={PERMISSIONS.CUSTOM_FIELD_MANAGE}>
-              <Button type="primary" onClick={() => setModalOpen(true)}>
-                New Custom Field
-              </Button>
-            </Can>
-          }
-        />
-
+      <DashboardPageShell
+        title="Custom Fields"
+        subtitle="Manage custom fields for assets"
+        actions={
+          <Can permission={PERMISSIONS.CUSTOM_FIELD_MANAGE}>
+            <Button type="primary" onClick={() => setModalOpen(true)}>
+              New Custom Field
+            </Button>
+          </Can>
+        }
+      >
         <DataTable<CustomFieldRow>
           isLoading={isLoading}
           error={error}
@@ -136,7 +131,7 @@ export default function CustomFieldsPage() {
             </Form.Item>
           </Form>
         </Modal>
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

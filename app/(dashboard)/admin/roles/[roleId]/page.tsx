@@ -11,15 +11,14 @@ import {
   Descriptions,
   Form,
   Input,
-  message,
   Modal,
   Row,
   Skeleton,
   Space,
   Tag,
-  Typography,
-} from "antd";
-import PageHeader from "@/components/page-header";
+  Typography } from "antd";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import RequirePermission from "@/components/require-permission";
 import ConfirmDelete from "@/components/confirm-delete";
 import Can from "@/components/can";
@@ -29,12 +28,12 @@ import {
   useUpdateOrganisationRole,
   useDeleteOrganisationRole,
   useUpdateOrganisationRolePermissions,
-  usePermissions,
-} from "@/hooks/data/use-rbac";
+  usePermissions } from "@/hooks/data/use-rbac";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateRoleRequest } from "@/lib/api/types";
 
 export default function RoleDetailPage() {
+  const { message } = useAppMessage();
   const { roleId } = useParams<{ roleId: string }>();
   const router = useRouter();
   const orgId = useOrgId();
@@ -127,7 +126,7 @@ export default function RoleDetailPage() {
               .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
               .map((perm) => (
                 <Checkbox key={perm.id} value={perm.id}>
-                  <Space direction="vertical" size={0}>
+                  <Space orientation="vertical" size={0}>
                     <Typography.Text>{perm.name}</Typography.Text>
                     {perm.description && (
                       <Typography.Text type="secondary" style={{ fontSize: 12 }}>
@@ -138,14 +137,12 @@ export default function RoleDetailPage() {
                 </Checkbox>
               ))}
           </Checkbox.Group>
-        ),
-      };
+        ) };
     });
 
   return (
     <RequirePermission permission={PERMISSIONS.ROLE_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title={role?.name ?? "Role"}
           breadcrumbs={[
             { label: "Home", href: "/" },
@@ -153,9 +150,8 @@ export default function RoleDetailPage() {
             { label: "Roles", href: "/admin/roles" },
             { label: role?.name ?? "Role" },
           ]}
-        />
-
-        <Row gutter={[24, 24]}>
+        >
+<Row gutter={[24, 24]}>
           <Col xs={24} md={16} lg={12}>
             <Card
               title="Role Details"
@@ -248,7 +244,7 @@ export default function RoleDetailPage() {
           description={`Are you sure you want to delete the role "${role?.name ?? ""}"? This action cannot be undone.`}
           confirmText="Delete"
         />
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

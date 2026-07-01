@@ -14,11 +14,10 @@ import {
   Skeleton,
   Space,
   Tag,
-  Tabs,
-  message,
-} from "antd";
+  Tabs } from "antd";
 import type { TableColumnsType } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import DataTable from "@/components/data-table";
 import Can from "@/components/can";
 import RequirePermission from "@/components/require-permission";
@@ -28,33 +27,33 @@ import { AssetStatusTag, CriticalityTag } from "@/components/status-tag";
 import {
   useOrganisationLocation,
   useUpdateOrganisationLocation,
-  useDeleteOrganisationLocation,
-} from "@/hooks/data/use-locations";
+  useDeleteOrganisationLocation } from "@/hooks/data/use-locations";
 import {
   useLocationLines,
-  useCreateLocationLine,
-} from "@/hooks/data/use-lines";
+  useCreateLocationLine } from "@/hooks/data/use-lines";
 import {
   useLocationAssets,
   useAssetStatuses,
-  useCreateAsset,
-} from "@/hooks/data/use-assets";
+  useCreateAsset } from "@/hooks/data/use-assets";
 import { useCategories } from "@/hooks/data/use-categories";
 import { useTypes } from "@/hooks/data/use-types";
 import { useOrgId } from "@/hooks/use-org-id";
+import { usePermission } from "@/hooks/use-permission";
 import { PERMISSIONS } from "@/lib/auth/permissions";
+import { filterTabsByPermission } from "@/lib/permission-tabs";
 import type {
   AssetSummaryResponse,
   CreateAssetRequest,
   CreateLineRequest,
   LineResponse,
-  UpdateLocationRequest,
-} from "@/lib/api/types";
+  UpdateLocationRequest } from "@/lib/api/types";
 
 export default function LocationDetailPage() {
+  const { message } = useAppMessage();
   const { locationId } = useParams<{ locationId: string }>();
   const orgId = useOrgId();
   const router = useRouter();
+  const { has, hasAny } = usePermission();
 
   const { data: location, isLoading: locationLoading } = useOrganisationLocation(orgId, locationId);
   const { trigger: updateLocation, isMutating: updatingLocation } = useUpdateOrganisationLocation(orgId ?? "", locationId);
@@ -69,8 +68,7 @@ export default function LocationDetailPage() {
   const [assetCategoryFilter, setAssetCategoryFilter] = useState<string | undefined>();
   const { data: assets, isLoading: assetsLoading, error: assetsError } = useLocationAssets(locationId, {
     status: assetStatusFilter,
-    categoryId: assetCategoryFilter,
-  });
+    categoryId: assetCategoryFilter });
   const { data: assetStatuses } = useAssetStatuses();
   const { data: categories } = useCategories();
   const { data: types } = useTypes();
@@ -94,14 +92,12 @@ export default function LocationDetailPage() {
       sorter: (a, b) => (a.name ?? "").localeCompare(b.name ?? ""),
       render: (name: string, record) => (
         <Link href={`/locations/${locationId}/lines/${record.id}`}>{name}</Link>
-      ),
-    },
+      ) },
     {
       title: "Description",
       dataIndex: "description",
       key: "description",
-      render: (v?: string) => v ?? "—",
-    },
+      render: (v?: string) => v ?? "—" },
     {
       title: "Status",
       dataIndex: "decommissionedAt",
@@ -111,8 +107,7 @@ export default function LocationDetailPage() {
           <Tag color="red">Decommissioned</Tag>
         ) : (
           <Tag color="green">Active</Tag>
-        ),
-    },
+        ) },
   ];
 
   const assetColumns: TableColumnsType<AssetSummaryResponse> = [
@@ -123,38 +118,32 @@ export default function LocationDetailPage() {
       sorter: (a, b) => (a.name ?? "").localeCompare(b.name ?? ""),
       render: (name: string, record) => (
         <Link href={`/locations/${locationId}/assets/${record.id}`}>{name}</Link>
-      ),
-    },
+      ) },
     {
       title: "Category",
       dataIndex: "categoryName",
       key: "categoryName",
-      render: (v?: string) => v ?? "—",
-    },
+      render: (v?: string) => v ?? "—" },
     {
       title: "Type",
       dataIndex: "typeName",
       key: "typeName",
-      render: (v?: string) => v ?? "—",
-    },
+      render: (v?: string) => v ?? "—" },
     {
       title: "Line",
       dataIndex: "lineName",
       key: "lineName",
-      render: (v?: string) => v ?? "—",
-    },
+      render: (v?: string) => v ?? "—" },
     {
       title: "Status",
       dataIndex: "statusLabel",
       key: "statusLabel",
-      render: (statusLabel?: string) => <AssetStatusTag statusLabel={statusLabel} />,
-    },
+      render: (statusLabel?: string) => <AssetStatusTag statusLabel={statusLabel} /> },
     {
       title: "Criticality",
       dataIndex: "criticality",
       key: "criticality",
-      render: (criticality?: string) => <CriticalityTag criticality={criticality} />,
-    },
+      render: (criticality?: string) => <CriticalityTag criticality={criticality} /> },
   ];
 
   const handleEditLocation = async () => {
@@ -199,8 +188,7 @@ export default function LocationDetailPage() {
         : undefined,
       warrantyExpiry: values.warrantyExpiry
         ? (values.warrantyExpiry as unknown as { format: (f: string) => string }).format("YYYY-MM-DD")
-        : undefined,
-    };
+        : undefined };
     try {
       await createAsset(payload);
       message.success("Asset created successfully");
@@ -215,10 +203,93 @@ export default function LocationDetailPage() {
     return <Skeleton active />;
   }
 
+  const locationTabs = filterTabsByPermission(
+    [
+      {
+        key: "lines",
+        label: "Lines",
+        permission: PERMISSIONS.LINE_READ,
+        children: (
+          <div>
+            <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
+              <Can permission={PERMISSIONS.LINE_CREATE}>
+                <Button type="primary" onClick={() => setNewLineModalOpen(true)}>
+                  New Line
+                </Button>
+              </Can>
+            </div>
+            <DataTable<LineResponse>
+              isLoading={linesLoading}
+              error={linesError}
+              dataSource={lines}
+              columns={lineColumns}
+            />
+          </div>
+        ),
+      },
+      {
+        key: "assets",
+        label: "Assets",
+        permission: PERMISSIONS.ASSET_READ,
+        children: (
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 12,
+                marginBottom: 16,
+                flexWrap: "wrap",
+              }}
+            >
+              <Space wrap>
+                <Select
+                  allowClear
+                  placeholder="Filter by status"
+                  style={{ minWidth: 180 }}
+                  value={assetStatusFilter}
+                  onChange={(v) => setAssetStatusFilter(v)}
+                  options={assetStatuses?.map((s) => ({
+                    value: s.code,
+                    label: s.label,
+                  }))}
+                />
+                <Select
+                  allowClear
+                  placeholder="Filter by category"
+                  style={{ minWidth: 180 }}
+                  value={assetCategoryFilter}
+                  onChange={(v) => setAssetCategoryFilter(v)}
+                  options={categories?.map((c) => ({
+                    value: c.id,
+                    label: c.name,
+                  }))}
+                />
+              </Space>
+              <Can permission={PERMISSIONS.ASSET_CREATE}>
+                <Button type="primary" onClick={() => setNewAssetDrawerOpen(true)}>
+                  New Asset
+                </Button>
+              </Can>
+            </div>
+            <DataTable<AssetSummaryResponse>
+              isLoading={assetsLoading}
+              error={assetsError}
+              dataSource={assets}
+              columns={assetColumns}
+            />
+          </div>
+        ),
+      },
+    ],
+    has,
+    hasAny
+  );
+
   return (
     <RequirePermission permission={PERMISSIONS.LOCATION_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title={location?.name ?? "Location"}
           subtitle={location?.address}
           breadcrumbs={[
@@ -234,8 +305,7 @@ export default function LocationDetailPage() {
                     editForm.setFieldsValue({
                       name: location?.name,
                       address: location?.address ?? undefined,
-                      timezone: location?.timezone ?? undefined,
-                    });
+                      timezone: location?.timezone ?? undefined });
                     setEditModalOpen(true);
                   }}
                 >
@@ -251,88 +321,11 @@ export default function LocationDetailPage() {
               )}
             </Space>
           }
-        />
-
-        <Tabs
-          defaultActiveKey="lines"
-          items={[
-            {
-              key: "lines",
-              label: "Lines",
-              children: (
-                <div>
-                  <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
-                    <Can permission={PERMISSIONS.LINE_CREATE}>
-                      <Button type="primary" onClick={() => setNewLineModalOpen(true)}>
-                        New Line
-                      </Button>
-                    </Can>
-                  </div>
-                  <DataTable<LineResponse>
-                    isLoading={linesLoading}
-                    error={linesError}
-                    dataSource={lines}
-                    columns={lineColumns}
-                  />
-                </div>
-              ),
-            },
-            {
-              key: "assets",
-              label: "Assets",
-              children: (
-                <div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "space-between",
-                      gap: 12,
-                      marginBottom: 16,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <Space wrap>
-                      <Select
-                        allowClear
-                        placeholder="Filter by status"
-                        style={{ minWidth: 180 }}
-                        value={assetStatusFilter}
-                        onChange={(v) => setAssetStatusFilter(v)}
-                        options={assetStatuses?.map((s) => ({
-                          value: s.code,
-                          label: s.label,
-                        }))}
-                      />
-                      <Select
-                        allowClear
-                        placeholder="Filter by category"
-                        style={{ minWidth: 180 }}
-                        value={assetCategoryFilter}
-                        onChange={(v) => setAssetCategoryFilter(v)}
-                        options={categories?.map((c) => ({
-                          value: c.id,
-                          label: c.name,
-                        }))}
-                      />
-                    </Space>
-                    <Can permission={PERMISSIONS.ASSET_CREATE}>
-                      <Button type="primary" onClick={() => setNewAssetDrawerOpen(true)}>
-                        New Asset
-                      </Button>
-                    </Can>
-                  </div>
-                  <DataTable<AssetSummaryResponse>
-                    isLoading={assetsLoading}
-                    error={assetsError}
-                    dataSource={assets}
-                    columns={assetColumns}
-                  />
-                </div>
-              ),
-            },
-          ]}
-        />
+        >
+          <Tabs
+            defaultActiveKey={locationTabs[0]?.key ?? "lines"}
+            items={locationTabs}
+          />
 
         {/* Edit Location Modal */}
         <Modal
@@ -407,7 +400,7 @@ export default function LocationDetailPage() {
             setNewAssetDrawerOpen(false);
             assetForm.resetFields();
           }}
-          width={520}
+          size={520}
           destroyOnHidden
           extra={
             <Space>
@@ -503,7 +496,7 @@ export default function LocationDetailPage() {
             </Form.Item>
           </Form>
         </Drawer>
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

@@ -2,22 +2,23 @@
 
 import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Button, Descriptions, Form, Input, Modal, Skeleton, Space, Tag, message } from "antd";
-import PageHeader from "@/components/page-header";
+import { Button, Descriptions, Form, Input, Modal, Skeleton, Space, Tag } from "antd";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import RequirePermission from "@/components/require-permission";
 import Can from "@/components/can";
 import ConfirmDelete from "@/components/confirm-delete";
 import {
   useLocationLine,
   useUpdateLocationLine,
-  useDeleteLocationLine,
-} from "@/hooks/data/use-lines";
+  useDeleteLocationLine } from "@/hooks/data/use-lines";
 import { useOrganisationLocation } from "@/hooks/data/use-locations";
 import { useOrgId } from "@/hooks/use-org-id";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateLineRequest } from "@/lib/api/types";
 
 export default function LineDetailPage() {
+  const { message } = useAppMessage();
   const { locationId, lineId } = useParams<{ locationId: string; lineId: string }>();
   const orgId = useOrgId();
   const router = useRouter();
@@ -60,8 +61,7 @@ export default function LineDetailPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.LINE_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title={line?.name ?? "Line"}
           breadcrumbs={[
             { label: "Home", href: "/" },
@@ -77,8 +77,7 @@ export default function LineDetailPage() {
                   onClick={() => {
                     editForm.setFieldsValue({
                       name: line?.name,
-                      description: line?.description ?? undefined,
-                    });
+                      description: line?.description ?? undefined });
                     setEditModalOpen(true);
                   }}
                 >
@@ -94,9 +93,8 @@ export default function LineDetailPage() {
               )}
             </Space>
           }
-        />
-
-        <Descriptions
+        >
+<Descriptions
           bordered
           column={{ xs: 1, sm: 2 }}
           style={{ marginTop: 24 }}
@@ -104,13 +102,11 @@ export default function LineDetailPage() {
             {
               key: "name",
               label: "Name",
-              children: line?.name ?? "—",
-            },
+              children: line?.name ?? "—" },
             {
               key: "description",
               label: "Description",
-              children: line?.description ?? "—",
-            },
+              children: line?.description ?? "—" },
             {
               key: "status",
               label: "Status",
@@ -118,29 +114,25 @@ export default function LineDetailPage() {
                 <Tag color="red">Decommissioned</Tag>
               ) : (
                 <Tag color="green">Active</Tag>
-              ),
-            },
+              ) },
             {
               key: "decommissionedAt",
               label: "Decommissioned At",
               children: line?.decommissionedAt
                 ? new Date(line.decommissionedAt).toLocaleDateString()
-                : "—",
-            },
+                : "—" },
             {
               key: "createdAt",
               label: "Created At",
               children: line?.createdAt
                 ? new Date(line.createdAt).toLocaleDateString()
-                : "—",
-            },
+                : "—" },
             {
               key: "updatedAt",
               label: "Updated At",
               children: line?.updatedAt
                 ? new Date(line.updatedAt).toLocaleDateString()
-                : "—",
-            },
+                : "—" },
           ]}
         />
 
@@ -178,7 +170,7 @@ export default function LineDetailPage() {
           description={`Are you sure you want to decommission "${line?.name}"? This action cannot be undone.`}
           confirmText="Decommission"
         />
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

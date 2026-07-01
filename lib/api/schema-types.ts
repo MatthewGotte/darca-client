@@ -113,6 +113,11 @@ export type UpdateComplianceScheduleRequest =
   components["schemas"]["UpdateComplianceScheduleRequest"];
 export type ComplianceScheduleResponse =
   components["schemas"]["ComplianceScheduleResponse"];
+export type ComplianceScheduleSummaryResponse = ComplianceScheduleResponse & {
+  assetName?: string;
+  locationId?: string;
+  locationName?: string;
+};
 
 // Jobs
 
@@ -120,6 +125,11 @@ export type CreateJobRequest = components["schemas"]["CreateJobRequest"];
 export type UpdateJobRequest = components["schemas"]["UpdateJobRequest"];
 export type CompleteJobRequest = components["schemas"]["CompleteJobRequest"];
 export type JobSummaryResponse = components["schemas"]["JobSummaryResponse"];
+export type OrganisationJobSummaryResponse = JobSummaryResponse & {
+  assetName?: string;
+  locationId?: string;
+  locationName?: string;
+};
 export type JobDetailResponse = components["schemas"]["JobDetailResponse"];
 export type JobAssignmentResponse =
   components["schemas"]["JobAssignmentResponse"];

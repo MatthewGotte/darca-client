@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Form, Input, Modal, message } from "antd";
+import { Button, Form, Input, Modal } from "antd";
 import type { TableColumnsType } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
 import DataTable from "@/components/data-table";
 import Can from "@/components/can";
 import RequirePermission from "@/components/require-permission";
@@ -12,6 +12,7 @@ import {
   useCategories,
   useCreateCategory,
 } from "@/hooks/data/use-categories";
+import { useAppMessage } from "@/hooks/use-app-message";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { CreateCategoryRequest } from "@/lib/api/types";
 
@@ -23,6 +24,7 @@ type CategoryRow = {
 };
 
 export default function CategoriesPage() {
+  const { message } = useAppMessage();
   const router = useRouter();
   const { data, isLoading, error } = useCategories();
   const { trigger: createCategory, isMutating } = useCreateCategory();
@@ -55,24 +57,17 @@ export default function CategoriesPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.CATEGORY_READ}>
-      <div>
-        <PageHeader
-          title="Categories"
-          subtitle="Manage asset categories"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Reference" },
-            { label: "Categories" },
-          ]}
-          actions={
-            <Can permission={PERMISSIONS.CATEGORY_MANAGE}>
-              <Button type="primary" onClick={() => setModalOpen(true)}>
-                New Category
-              </Button>
-            </Can>
-          }
-        />
-
+      <DashboardPageShell
+        title="Categories"
+        subtitle="Manage asset categories"
+        actions={
+          <Can permission={PERMISSIONS.CATEGORY_MANAGE}>
+            <Button type="primary" onClick={() => setModalOpen(true)}>
+              New Category
+            </Button>
+          </Can>
+        }
+      >
         <DataTable<CategoryRow>
           isLoading={isLoading}
           error={error}
@@ -109,7 +104,7 @@ export default function CategoriesPage() {
             </Form.Item>
           </Form>
         </Modal>
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

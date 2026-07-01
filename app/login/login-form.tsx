@@ -106,14 +106,14 @@ export default function LoginForm({ callbackUrl, resetSuccess }: LoginFormProps)
           {resetSuccess ? (
             <Alert
               type="success"
-              message="Your password has been reset. You can sign in now."
+              title="Your password has been reset. You can sign in now."
               showIcon
             />
           ) : null}
           {alert ? (
             <Alert
               type="error"
-              message={alert.message}
+              title={alert.message}
               description={alert.description}
               showIcon
             />

@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Form, Input, message, Modal, Tag } from "antd";
+import { Button, Form, Input, Modal, Tag } from "antd";
 import type { TableColumnsType } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
 import DataTable from "@/components/data-table";
 import RequirePermission from "@/components/require-permission";
 import Can from "@/components/can";
 import Link from "@/components/link";
 import { useOrgId } from "@/hooks/use-org-id";
 import { useOrganisationRoles, useCreateOrganisationRole } from "@/hooks/data/use-rbac";
+import { useAppMessage } from "@/hooks/use-app-message";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { CreateRoleRequest } from "@/lib/api/types";
 import type { RoleSummaryResponse } from "@/lib/api/schema-types";
@@ -17,6 +18,7 @@ import type { RoleSummaryResponse } from "@/lib/api/schema-types";
 type RoleRow = RoleSummaryResponse;
 
 export default function RolesPage() {
+  const { message } = useAppMessage();
   const orgId = useOrgId();
   const [createModalOpen, setCreateModalOpen] = useState(false);
   const [form] = Form.useForm<CreateRoleRequest>();
@@ -71,23 +73,16 @@ export default function RolesPage() {
 
   return (
     <RequirePermission permission={PERMISSIONS.ROLE_READ}>
-      <div>
-        <PageHeader
-          title="Roles"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Admin", href: "/admin" },
-            { label: "Roles" },
-          ]}
-          actions={
-            <Can permission={PERMISSIONS.ROLE_CREATE}>
-              <Button type="primary" onClick={() => setCreateModalOpen(true)}>
-                New Role
-              </Button>
-            </Can>
-          }
-        />
-
+      <DashboardPageShell
+        title="Roles"
+        actions={
+          <Can permission={PERMISSIONS.ROLE_CREATE}>
+            <Button type="primary" onClick={() => setCreateModalOpen(true)}>
+              New Role
+            </Button>
+          </Can>
+        }
+      >
         <DataTable<RoleRow>
           dataSource={roles}
           columns={columns}
@@ -120,7 +115,7 @@ export default function RolesPage() {
             </Form.Item>
           </Form>
         </Modal>
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

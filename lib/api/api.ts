@@ -19,6 +19,7 @@ import type {
   ChangePasswordRequest,
   CompleteJobRequest,
   ComplianceScheduleResponse,
+  ComplianceScheduleSummaryResponse,
   CreateAssetRequest,
   CreateCategoryRequest,
   CreateComplianceScheduleRequest,
@@ -36,6 +37,7 @@ import type {
   JobPriority,
   JobStatus,
   JobSummaryResponse,
+  OrganisationJobSummaryResponse,
   LineResponse,
   LocationResponse,
   MeResponse,
@@ -100,6 +102,49 @@ export async function updateOrganisation(
   const { data } = await api.put<OrganisationResponse>(
     `/organisations/${id}`,
     body
+  );
+  return data;
+}
+
+export async function listOrganisationAssets(
+  organisationId: string,
+  params?: { locationId?: string; status?: AssetStatus; categoryId?: string }
+): Promise<AssetSummaryResponse[]> {
+  const { data } = await api.get<AssetSummaryResponse[]>(
+    `/organisations/${organisationId}/assets`,
+    { params }
+  );
+  return data;
+}
+
+export async function listOrganisationJobs(
+  organisationId: string,
+  params?: {
+    locationId?: string;
+    assetId?: string;
+    status?: JobStatus;
+    priority?: JobPriority;
+    assignedUserId?: string;
+  }
+): Promise<OrganisationJobSummaryResponse[]> {
+  const { data } = await api.get<OrganisationJobSummaryResponse[]>(
+    `/organisations/${organisationId}/jobs`,
+    { params }
+  );
+  return data;
+}
+
+export async function listOrganisationComplianceSchedules(
+  organisationId: string,
+  params?: {
+    locationId?: string;
+    active?: boolean;
+    overdue?: boolean;
+  }
+): Promise<ComplianceScheduleSummaryResponse[]> {
+  const { data } = await api.get<ComplianceScheduleSummaryResponse[]>(
+    `/organisations/${organisationId}/compliance-schedules`,
+    { params }
   );
   return data;
 }
@@ -360,6 +405,16 @@ export async function listAssetAttachments(
 ): Promise<AttachmentResponse[]> {
   const { data } = await api.get<AttachmentResponse[]>(
     `/assets/${assetId}/attachments`
+  );
+  return data;
+}
+
+export async function refreshAssetAttachmentUrl(
+  assetId: string,
+  attachmentId: string
+): Promise<AttachmentResponse> {
+  const { data } = await api.get<AttachmentResponse>(
+    `/assets/${assetId}/attachments/${attachmentId}/url`
   );
   return data;
 }

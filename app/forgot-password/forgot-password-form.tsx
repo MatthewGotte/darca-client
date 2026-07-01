@@ -35,7 +35,7 @@ export default function ForgotPasswordForm() {
         </Title>
         <Alert
           type="success"
-          message="If an account exists for that email, a reset link has been sent."
+          title="If an account exists for that email, a reset link has been sent."
           showIcon
         />
         <Link href="/login">
@@ -57,7 +57,7 @@ export default function ForgotPasswordForm() {
         </Paragraph>
       </div>
 
-      {error ? <Alert type="error" message={error} showIcon /> : null}
+      {error ? <Alert type="error" title={error} showIcon /> : null}
 
       <Form layout="vertical" onFinish={handleSubmit}>
         <Form.Item label="Email" required>

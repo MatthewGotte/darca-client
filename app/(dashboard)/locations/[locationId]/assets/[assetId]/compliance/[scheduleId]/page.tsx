@@ -14,12 +14,11 @@ import {
   Skeleton,
   Space,
   Switch,
-  Tag,
-  message,
-} from "antd";
+  Tag } from "antd";
 import dayjs from "dayjs";
 
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import Can from "@/components/can";
 import ConfirmDelete from "@/components/confirm-delete";
 import RequirePermission from "@/components/require-permission";
@@ -27,8 +26,7 @@ import RequirePermission from "@/components/require-permission";
 import {
   useAssetComplianceSchedule,
   useUpdateAssetComplianceSchedule,
-  useDeleteAssetComplianceSchedule,
-} from "@/hooks/data/use-compliance-schedules";
+  useDeleteAssetComplianceSchedule } from "@/hooks/data/use-compliance-schedules";
 import { useAsset } from "@/hooks/data/use-assets";
 import { useOrganisationLocation } from "@/hooks/data/use-locations";
 import { useOrgId } from "@/hooks/use-org-id";
@@ -36,6 +34,7 @@ import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateComplianceScheduleRequest } from "@/lib/api/types";
 
 export default function ComplianceScheduleDetailPage() {
+  const { message } = useAppMessage();
   const { locationId, assetId, scheduleId } = useParams<{
     locationId: string;
     assetId: string;
@@ -69,8 +68,7 @@ export default function ComplianceScheduleDetailPage() {
         frequencyInterval: values.frequencyInterval,
         frequencyUnit: values.frequencyUnit,
         active: values.active,
-        nextDueDate: dayjs(values.nextDueDate as unknown as string).toISOString(),
-      });
+        nextDueDate: dayjs(values.nextDueDate as unknown as string).toISOString() });
       message.success("Schedule updated");
       setEditOpen(false);
     } catch {
@@ -101,20 +99,17 @@ export default function ComplianceScheduleDetailPage() {
     { label: "Locations", href: "/locations" },
     {
       label: location?.name ?? locationId,
-      href: `/locations/${locationId}`,
-    },
+      href: `/locations/${locationId}` },
     {
       label: asset?.name ?? assetId,
-      href: `/locations/${locationId}/assets/${assetId}`,
-    },
+      href: `/locations/${locationId}/assets/${assetId}` },
     { label: "Compliance" },
     { label: schedule.title ?? "Schedule" },
   ];
 
   return (
     <RequirePermission permission={PERMISSIONS.COMPLIANCE_SCHEDULE_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title={schedule.title}
           breadcrumbs={breadcrumbs}
           actions={
@@ -126,8 +121,7 @@ export default function ComplianceScheduleDetailPage() {
                       ...schedule,
                       nextDueDate: schedule.nextDueDate
                         ? (dayjs(schedule.nextDueDate) as unknown as string)
-                        : undefined,
-                    });
+                        : undefined });
                     setEditOpen(true);
                   }}
                 >
@@ -146,9 +140,8 @@ export default function ComplianceScheduleDetailPage() {
               )}
             </Space>
           }
-        />
-
-        <Descriptions bordered column={{ xs: 1, sm: 2 }}>
+        >
+<Descriptions bordered column={{ xs: 1, sm: 2 }}>
           <Descriptions.Item label="Title">{schedule.title}</Descriptions.Item>
           <Descriptions.Item label="Description">
             {schedule.description ?? "—"}
@@ -183,7 +176,7 @@ export default function ComplianceScheduleDetailPage() {
           title="Edit Compliance Schedule"
           open={editOpen}
           onClose={() => setEditOpen(false)}
-          width={480}
+          size={480}
           destroyOnHidden
           footer={
             <Space>
@@ -248,7 +241,7 @@ export default function ComplianceScheduleDetailPage() {
           title="Decommission Schedule"
           description="This will decommission the compliance schedule. This action cannot be undone."
         />
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

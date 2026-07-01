@@ -1,7 +1,7 @@
 "use client";
 
 import type { TableProps } from "antd";
-import { Alert, Table } from "antd";
+import { Alert, Card, Table } from "antd";
 
 type DataTableProps<T> = TableProps<T> & {
   isLoading?: boolean;
@@ -17,7 +17,7 @@ export default function DataTable<T extends object>({
     return (
       <Alert
         type="error"
-        message="Failed to load data"
+        title="Failed to load data"
         description={(error as Error)?.message ?? "An unexpected error occurred"}
         showIcon
       />
@@ -25,12 +25,14 @@ export default function DataTable<T extends object>({
   }
 
   return (
-    <Table<T>
-      loading={isLoading}
-      rowKey="id"
-      pagination={{ pageSize: 20, showSizeChanger: true }}
-      scroll={{ x: "max-content" }}
-      {...tableProps}
-    />
+    <Card variant="borderless">
+      <Table<T>
+        loading={isLoading}
+        rowKey="id"
+        pagination={{ pageSize: 20, showSizeChanger: true }}
+        scroll={{ x: "max-content" }}
+        {...tableProps}
+      />
+    </Card>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { Collapse, List, Skeleton, Typography } from "antd";
-import PageHeader from "@/components/page-header";
+import { Collapse, Flex, Skeleton, Typography } from "antd";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
 import RequirePermission from "@/components/require-permission";
 import { usePermissions } from "@/hooks/data/use-rbac";
 import { PERMISSIONS } from "@/lib/auth/permissions";
@@ -16,43 +16,38 @@ export default function PermissionsPage() {
       key: group.group ?? "ungrouped",
       label: <Typography.Text strong>{group.group ?? "Ungrouped"}</Typography.Text>,
       children: (
-        <List
-          size="small"
-          dataSource={(group.permissions ?? [])
+        <Flex vertical>
+          {(group.permissions ?? [])
             .slice()
-            .sort(
-              (a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
-            )}
-          renderItem={(perm) => (
-            <List.Item>
-              <List.Item.Meta
-                title={perm.name}
-                description={perm.description}
-              />
-            </List.Item>
-          )}
-        />
+            .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+            .map((perm) => (
+              <Flex
+                key={perm.name}
+                vertical
+                style={{
+                  padding: "8px 0",
+                  borderBottom: "1px solid #f0f0f0",
+                }}
+              >
+                <Typography.Text strong>{perm.name}</Typography.Text>
+                {perm.description ? (
+                  <Typography.Text type="secondary">{perm.description}</Typography.Text>
+                ) : null}
+              </Flex>
+            ))}
+        </Flex>
       ),
     }));
 
   return (
     <RequirePermission permission={PERMISSIONS.PERMISSION_READ}>
-      <div>
-        <PageHeader
-          title="Permissions"
-          breadcrumbs={[
-            { label: "Home", href: "/" },
-            { label: "Admin", href: "/admin" },
-            { label: "Permissions" },
-          ]}
-        />
-
+      <DashboardPageShell title="Permissions">
         {isLoading ? (
           <Skeleton active />
         ) : (
           <Collapse accordion items={collapseItems} />
         )}
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }

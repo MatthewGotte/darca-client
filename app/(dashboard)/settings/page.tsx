@@ -12,17 +12,19 @@ import {
   Row,
   Space,
   Tag,
-  message,
 } from "antd";
-import PageHeader from "@/components/page-header";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
 import Can from "@/components/can";
 import { useAuth } from "@/hooks/use-auth";
 import { useChangePassword } from "@/hooks/data/use-auth-data";
+import { useAppMessage } from "@/hooks/use-app-message";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { ChangePasswordRequest } from "@/lib/api/types";
 import Link from "@/components/link";
+import EffectivePermissionsPanel from "@/components/effective-permissions-panel";
 
 export default function SettingsPage() {
+  const { message } = useAppMessage();
   const { user, roles } = useAuth();
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [form] = Form.useForm<ChangePasswordRequest & { confirmPassword: string }>();
@@ -44,17 +46,14 @@ export default function SettingsPage() {
   };
 
   return (
-    <div>
-      <PageHeader
-        title="Settings"
-        breadcrumbs={[{ label: "Home", href: "/" }, { label: "Settings" }]}
-        actions={
-          <Button type="primary" onClick={() => setPasswordModalOpen(true)}>
-            Change Password
-          </Button>
-        }
-      />
-
+    <DashboardPageShell
+      title="Settings"
+      actions={
+        <Button type="primary" onClick={() => setPasswordModalOpen(true)}>
+          Change Password
+        </Button>
+      }
+    >
       <Row gutter={[24, 24]}>
         <Col xs={24} md={16} lg={12}>
           <Card title="Profile">
@@ -84,6 +83,12 @@ export default function SettingsPage() {
               Manage your organisation settings and details.
             </Card>
           </Can>
+        </Col>
+      </Row>
+
+      <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+        <Col xs={24}>
+          <EffectivePermissionsPanel />
         </Col>
       </Row>
 
@@ -137,6 +142,6 @@ export default function SettingsPage() {
           </Form.Item>
         </Form>
       </Modal>
-    </div>
+    </DashboardPageShell>
   );
 }

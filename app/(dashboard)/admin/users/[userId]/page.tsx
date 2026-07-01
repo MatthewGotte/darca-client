@@ -9,16 +9,15 @@ import {
   Descriptions,
   Form,
   Input,
-  message,
   Modal,
   Row,
   Select,
   Skeleton,
   Space,
   Tag,
-  Tabs,
-} from "antd";
-import PageHeader from "@/components/page-header";
+  Tabs } from "antd";
+import DashboardPageShell from "@/components/dashboard/dashboard-page-shell";
+import { useAppMessage } from "@/hooks/use-app-message";
 import RequirePermission from "@/components/require-permission";
 import ConfirmDelete from "@/components/confirm-delete";
 import Can from "@/components/can";
@@ -27,20 +26,19 @@ import {
   useOrganisationUser,
   useUpdateOrganisationUser,
   useDeleteOrganisationUser,
-  useSetUserPassword,
-} from "@/hooks/data/use-users";
+  useSetUserPassword } from "@/hooks/data/use-users";
 import {
   useOrganisationRoles,
   useUserOrganisationRoles,
   useUserLocationRoles,
   useUpdateUserOrganisationRoles,
-  useUpdateUserLocationRoles,
-} from "@/hooks/data/use-rbac";
+  useUpdateUserLocationRoles } from "@/hooks/data/use-rbac";
 import { useOrganisationLocations } from "@/hooks/data/use-locations";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { UpdateUserRequest, SetPasswordRequest } from "@/lib/api/types";
 
 export default function UserDetailPage() {
+  const { message } = useAppMessage();
   const { userId } = useParams<{ userId: string }>();
   const router = useRouter();
   const orgId = useOrgId();
@@ -143,8 +141,7 @@ export default function UserDetailPage() {
             </Card>
           </Col>
         </Row>
-      ),
-    },
+      ) },
     {
       key: "org-roles",
       label: "Organisation Roles",
@@ -152,8 +149,7 @@ export default function UserDetailPage() {
         <Can permission={PERMISSIONS.USER_ASSIGN_ROLES} fallback={<p>You do not have permission to manage roles.</p>}>
           <OrgRolesTab orgId={orgId} userId={userId} />
         </Can>
-      ),
-    },
+      ) },
     {
       key: "location-roles",
       label: "Location Roles",
@@ -161,14 +157,12 @@ export default function UserDetailPage() {
         <Can permission={PERMISSIONS.USER_ASSIGN_ROLES} fallback={<p>You do not have permission to manage roles.</p>}>
           <LocationRolesTab orgId={orgId} userId={userId} />
         </Can>
-      ),
-    },
+      ) },
   ];
 
   return (
     <RequirePermission permission={PERMISSIONS.USER_READ}>
-      <div>
-        <PageHeader
+      <DashboardPageShell
           title={user?.name ?? "User"}
           breadcrumbs={[
             { label: "Home", href: "/" },
@@ -176,9 +170,8 @@ export default function UserDetailPage() {
             { label: "Users", href: "/admin/users" },
             { label: user?.name ?? "User" },
           ]}
-        />
-
-        <Tabs items={tabItems} />
+        >
+<Tabs items={tabItems} />
 
         <Modal
           title="Edit User"
@@ -232,18 +225,18 @@ export default function UserDetailPage() {
           description={`Are you sure you want to decommission ${user?.name ?? "this user"}? This action cannot be undone.`}
           confirmText="Decommission"
         />
-      </div>
+      </DashboardPageShell>
     </RequirePermission>
   );
 }
 
 function OrgRolesTab({
   orgId,
-  userId,
-}: {
+  userId }: {
   orgId: string | undefined;
   userId: string;
 }) {
+  const { message } = useAppMessage();
   const { data: roles } = useOrganisationRoles(orgId);
   const { data: userRoles } = useUserOrganisationRoles(userId);
   const { trigger: updateRoles, isMutating } = useUpdateUserOrganisationRoles(userId);
@@ -266,7 +259,7 @@ function OrgRolesTab({
 
   return (
     <Card title="Organisation Roles" style={{ maxWidth: 600 }}>
-      <Space direction="vertical" style={{ width: "100%" }}>
+      <Space orientation="vertical" style={{ width: "100%" }}>
         <Select
           mode="multiple"
           style={{ width: "100%" }}
@@ -285,11 +278,11 @@ function OrgRolesTab({
 
 function LocationRolesTab({
   orgId,
-  userId,
-}: {
+  userId }: {
   orgId: string | undefined;
   userId: string;
 }) {
+  const { message } = useAppMessage();
   const { data: locations } = useOrganisationLocations(orgId);
   const { data: roles } = useOrganisationRoles(orgId);
   const [selectedLocationId, setSelectedLocationId] = useState<string | undefined>();
@@ -320,7 +313,7 @@ function LocationRolesTab({
 
   return (
     <Card title="Location Roles" style={{ maxWidth: 600 }}>
-      <Space direction="vertical" style={{ width: "100%" }}>
+      <Space orientation="vertical" style={{ width: "100%" }}>
         <Select
           style={{ width: "100%" }}
           placeholder="Select a location"
