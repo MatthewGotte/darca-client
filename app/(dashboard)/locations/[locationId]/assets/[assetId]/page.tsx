@@ -15,7 +15,6 @@ import {
   Select,
   Skeleton,
   Space,
-  Switch,
   Tabs,
   Tag,
   Upload,
@@ -203,7 +202,7 @@ function OverviewTab({
         open={editOpen}
         onClose={() => setEditOpen(false)}
         width={480}
-        destroyOnHide
+        destroyOnHidden
         footer={
           <Space>
             <Button onClick={() => setEditOpen(false)}>Cancel</Button>
@@ -254,7 +253,7 @@ function OverviewTab({
               allowClear
               options={statuses?.map((s) => ({
                 label: s.label,
-                value: s.status,
+                value: s.code,
               }))}
             />
           </Form.Item>
@@ -331,18 +330,35 @@ function IdentifiersTab({
 
   const openDrawer = () => {
     setRows(
-      asset.identifiers?.map((id) => ({
-        type: id.type,
-        value: id.value,
-        active: id.active ?? true,
-      })) ?? []
+      (asset.identifiers ?? [])
+        .filter(
+          (id): id is typeof id & { type: string; value: string } =>
+            id.type != null && id.value != null
+        )
+        .map((id) => ({
+          type: id.type,
+          value: id.value,
+          active: id.active ?? true,
+        }))
     );
     setDrawerOpen(true);
   };
 
   const handleSave = async () => {
     try {
-      await replaceIdentifiers({ identifiers: rows });
+      await replaceIdentifiers({
+        identifiers: rows.map((row) => ({
+          type: row.type as
+            | "SERIAL_NUMBER"
+            | "BARCODE"
+            | "QR_CODE"
+            | "RFID"
+            | "TAG"
+            | "ASSET_TAG",
+          value: row.value,
+          active: row.active,
+        })),
+      });
       message.success("Identifiers updated");
       setDrawerOpen(false);
     } catch {
@@ -397,7 +413,7 @@ function IdentifiersTab({
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         width={520}
-        destroyOnHide
+        destroyOnHidden
         footer={
           <Space>
             <Button onClick={() => setDrawerOpen(false)}>Cancel</Button>
@@ -496,7 +512,9 @@ function CustomFieldsTab({
   const openDrawer = () => {
     const initial: Record<string, string> = {};
     asset.customFields?.forEach((f) => {
-      initial[f.customFieldId] = f.value ?? "";
+      if (f.customFieldId) {
+        initial[f.customFieldId] = f.value ?? "";
+      }
     });
     form.setFieldsValue(initial);
     setDrawerOpen(true);
@@ -517,7 +535,7 @@ function CustomFieldsTab({
     }
   };
 
-  const renderField = (dataType: string, name: string) => {
+  const renderField = (dataType: string) => {
     switch (dataType) {
       case "NUMBER":
         return <InputNumber style={{ width: "100%" }} />;
@@ -559,7 +577,7 @@ function CustomFieldsTab({
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         width={480}
-        destroyOnHide
+        destroyOnHidden
         footer={
           <Space>
             <Button onClick={() => setDrawerOpen(false)}>Cancel</Button>
@@ -576,7 +594,7 @@ function CustomFieldsTab({
               name={f.customFieldId}
               label={f.label}
             >
-              {renderField(f.dataType, f.customFieldId)}
+              {renderField(f.dataType ?? "TEXT")}
             </Form.Item>
           ))}
         </Form>
@@ -636,7 +654,7 @@ function AttachmentsTab({ assetId }: { assetId: string }) {
             <Button
               danger
               size="small"
-              onClick={() => setDeleteTarget(record.id)}
+              onClick={() => setDeleteTarget(record.id ?? null)}
             >
               Delete
             </Button>
@@ -766,7 +784,10 @@ function AssignmentsTab({
       </Space>
 
       <DataTable
-        dataSource={asset.assignments ?? []}
+        dataSource={(asset.assignments ?? []).filter(
+          (assignment): assignment is typeof assignment & { userId: string } =>
+            assignment.userId != null
+        )}
         columns={columns}
         rowKey="userId"
         pagination={false}
@@ -782,7 +803,7 @@ function AssignmentsTab({
         }}
         okText="Assign"
         confirmLoading={assigning}
-        destroyOnHide
+        destroyOnHidden
       >
         <Select
           style={{ width: "100%", marginTop: 16 }}
@@ -960,7 +981,7 @@ function ComplianceTab({
           }}
           okText="Create"
           confirmLoading={isMutating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item
@@ -1143,7 +1164,7 @@ function JobsTab({
           }}
           okText="Create"
           confirmLoading={isMutating}
-          destroyOnHide
+          destroyOnHidden
           width={560}
         >
           <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
@@ -1235,7 +1256,7 @@ export default function AssetDetailPage() {
       label: location?.name ?? locationId,
       href: `/locations/${locationId}`,
     },
-    { label: asset.name },
+    { label: asset.name ?? assetId },
   ];
 
   const tabItems = [

@@ -15,14 +15,9 @@ import {
 } from "@/hooks/data/use-users";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { CreateUserRequest } from "@/lib/api/types";
+import type { UserResponse } from "@/lib/api/schema-types";
 
-type UserRow = {
-  id: string;
-  name: string;
-  email: string;
-  active: boolean;
-  decommissionedAt?: string | null;
-};
+type UserRow = UserResponse;
 
 export default function UsersPage() {
   const orgId = useOrgId();
@@ -50,9 +45,12 @@ export default function UsersPage() {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      render: (name: string, record: UserRow) => (
-        <Link href={`/admin/users/${record.id}`}>{name}</Link>
-      ),
+      render: (name: string | undefined, record: UserRow) =>
+        record.id ? (
+          <Link href={`/admin/users/${record.id}`}>{name}</Link>
+        ) : (
+          name
+        ),
     },
     {
       title: "Email",
@@ -63,7 +61,7 @@ export default function UsersPage() {
       title: "Status",
       dataIndex: "active",
       key: "active",
-      render: (active: boolean) =>
+      render: (active?: boolean) =>
         active ? (
           <Tag color="green">Active</Tag>
         ) : (
@@ -124,7 +122,7 @@ export default function UsersPage() {
           }}
           okText="Create"
           confirmLoading={isMutating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

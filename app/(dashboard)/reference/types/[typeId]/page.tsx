@@ -105,7 +105,7 @@ export default function TypeDetailPage() {
           }}
           okText="Save"
           confirmLoading={isUpdating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={editForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

@@ -12,14 +12,9 @@ import { useOrgId } from "@/hooks/use-org-id";
 import { useOrganisationRoles, useCreateOrganisationRole } from "@/hooks/data/use-rbac";
 import { PERMISSIONS } from "@/lib/auth/permissions";
 import type { CreateRoleRequest } from "@/lib/api/types";
+import type { RoleSummaryResponse } from "@/lib/api/schema-types";
 
-type RoleRow = {
-  id: string;
-  name: string;
-  description?: string | null;
-  system: boolean;
-  permissions?: unknown[];
-};
+type RoleRow = RoleSummaryResponse;
 
 export default function RolesPage() {
   const orgId = useOrgId();
@@ -46,9 +41,12 @@ export default function RolesPage() {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      render: (name: string, record: RoleRow) => (
-        <Link href={`/admin/roles/${record.id}`}>{name}</Link>
-      ),
+      render: (name: string | undefined, record: RoleRow) =>
+        record.id ? (
+          <Link href={`/admin/roles/${record.id}`}>{name}</Link>
+        ) : (
+          name
+        ),
     },
     {
       title: "Description",
@@ -60,14 +58,14 @@ export default function RolesPage() {
       title: "System",
       dataIndex: "system",
       key: "system",
-      render: (system: boolean) =>
+      render: (system?: boolean) =>
         system ? <Tag color="orange">System</Tag> : "—",
     },
     {
       title: "Permissions",
       key: "permissions",
       render: (_: unknown, record: RoleRow) =>
-        Array.isArray(record.permissions) ? record.permissions.length : "—",
+        record.permissionCount ?? "—",
     },
   ];
 
@@ -107,7 +105,7 @@ export default function RolesPage() {
           }}
           okText="Create"
           confirmLoading={isMutating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

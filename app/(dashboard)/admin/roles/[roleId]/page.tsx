@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   Button,
@@ -48,14 +48,16 @@ export default function RoleDetailPage() {
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [checkedIds, setCheckedIds] = useState<string[]>([]);
+  const serverCheckedIds = useMemo(
+    () =>
+      role?.permissions
+        ?.map((p) => p.id)
+        .filter((id): id is string => id != null) ?? [],
+    [role]
+  );
+  const [draftCheckedIds, setDraftCheckedIds] = useState<string[] | null>(null);
+  const checkedIds = draftCheckedIds ?? serverCheckedIds;
   const [editForm] = Form.useForm<UpdateRoleRequest>();
-
-  useEffect(() => {
-    if (role?.permissions) {
-      setCheckedIds(role.permissions.map((p: { id: string }) => p.id));
-    }
-  }, [role]);
 
   const handleEdit = () => {
     editForm.setFieldsValue({ name: role?.name ?? "", description: role?.description ?? "" });
@@ -87,6 +89,7 @@ export default function RoleDetailPage() {
     try {
       await savePermissions({ permissionIds: checkedIds });
       message.success("Permissions updated");
+      setDraftCheckedIds(null);
     } catch {
       message.error("Failed to update permissions");
     }
@@ -94,41 +97,35 @@ export default function RoleDetailPage() {
 
   const collapseItems = (permissionGroups ?? [])
     .slice()
-    .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+    .sort((a, b) => (a.group ?? "").localeCompare(b.group ?? ""))
     .map((group) => {
-      const groupPermIds = group.permissions.map((p: { id: string }) => p.id);
-      const groupChecked = groupPermIds.filter((id: string) => checkedIds.includes(id));
+      const permissions = group.permissions ?? [];
+      const groupPermIds = permissions
+        .map((p) => p.id)
+        .filter((id): id is string => id != null);
+      const groupChecked = groupPermIds.filter((id) => checkedIds.includes(id));
 
       const handleGroupChange = (vals: string[]) => {
-        setCheckedIds((prev) => {
-          const without = prev.filter((id) => !groupPermIds.includes(id));
+        setDraftCheckedIds((prev) => {
+          const current = prev ?? serverCheckedIds;
+          const without = current.filter((id) => !groupPermIds.includes(id));
           return [...without, ...vals];
         });
       };
 
       return {
-        key: group.id,
-        label: (
-          <Space>
-            <Typography.Text strong>{group.name}</Typography.Text>
-            {group.description && (
-              <Typography.Text type="secondary">{group.description}</Typography.Text>
-            )}
-          </Space>
-        ),
+        key: group.group ?? "ungrouped",
+        label: <Typography.Text strong>{group.group ?? "Ungrouped"}</Typography.Text>,
         children: (
           <Checkbox.Group
             value={groupChecked}
             onChange={(vals) => handleGroupChange(vals as string[])}
             style={{ display: "flex", flexDirection: "column", gap: 8 }}
           >
-            {group.permissions
+            {permissions
               .slice()
-              .sort(
-                (a: { displayOrder?: number }, b: { displayOrder?: number }) =>
-                  (a.displayOrder ?? 0) - (b.displayOrder ?? 0)
-              )
-              .map((perm: { id: string; name: string; description?: string }) => (
+              .sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
+              .map((perm) => (
                 <Checkbox key={perm.id} value={perm.id}>
                   <Space direction="vertical" size={0}>
                     <Typography.Text>{perm.name}</Typography.Text>
@@ -226,7 +223,7 @@ export default function RoleDetailPage() {
           onCancel={() => setEditModalOpen(false)}
           okText="Save"
           confirmLoading={isUpdating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={editForm} layout="vertical" style={{ marginTop: 16 }}>
             <Form.Item

@@ -114,7 +114,7 @@ export default function CustomFieldsPage() {
           }}
           okText="Create"
           confirmLoading={isMutating}
-          destroyOnHide
+          destroyOnHidden
         >
           <Form form={form} layout="vertical" style={{ marginTop: 16 }} initialValues={{ required: false }}>
             <Form.Item
