@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <div className={styles.formInner}>
             <h1 className={styles.heading}>
               Welcome back to
-              <span className={styles.headingAccent}>Management Made Simple</span>
+              <span className={styles.headingAccent}>Compliance Made Simple</span>
             </h1>
             <p className={styles.subheading}>
               Sign in to manage assets, jobs, and compliance across your
